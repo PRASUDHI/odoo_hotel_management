@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_doctor" model="ir.actions.act_window">
+        <field name="name">Doctor</field>
+        <field name="res_model">hospital.doctor</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="help" type="html">
+            <p class="o_view_noncontent_smiling_face"></p>
+        </field>
+    </record>
+
+
+    <record id="view_doctor_form" model="ir.ui.view">
+        <field name="name">doctor.view.form</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="department"/>
+                        <field name="consulting_fee"/>
+                        <field name="consulting_type"/>
+                        <field name="specialization"/>
+                    </group>
+                    <notebook>
+                        <page string="General">
+                            <group>
+                                <group>
+                                    <field name="email"/>
+                                    <field name="phone"/>
+                                    <field name="joining_date"/>
+                                </group>
+                                <group>
+                                    <field name="experience_years"/>
+                                    <field name="qualification"/>
+                                    <field name="bio"/>
+                                </group>
+                            </group>
+
+                        </page>
+
+                        <page string="Appointments">
+                            <group>
+                                <field name="appointment_lines">
+                                    <list>
+                                        <field name="patient_id"/>
+                                        <button name="action_done" type="object" string="Done" icon="fa-check" attrs="{'invisible': [('appointment_status', '=', 'done')]}"/>
+
+                                    </list>
+                                </field>
+
+                            </group>
+
+                            <!--                            <group>-->
+                            <!--                                <list>-->
+                            <!--                                   <field name="appointment_id"/>-->
+                            <!--                                </list>-->
+
+                            <!--                            </group>-->
+
+
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+
+    </record>
+
+    <record id="view_doctor_list" model="ir.ui.view">
+        <field name="name">doctor.view.list</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="department"/>
+                <field name="qualification"/>
+
+            </list>
+        </field>
+    </record>
+
+
+    <record id="view_doctor_search" model="ir.ui.view">
+        <field name="name">doctor.view.search</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="My Custom Name"/>
+                <field name="department"/>
+                <field name="consulting_type"/>
+                <field name="specialization"/>
+                <filter string="MBBS" name="qualification" domain="[('qualification','=','mbbs')]"/>
+                <filter string="MD" name="qualification" domain="[('qualification','=','md')]"/>
+                <filter string="MS" name="qualification" domain="[('qualification','=','ms')]"/>
+                <group expand="'1" string="Group By">
+                    <filter name="qualification" string="Qualification" context="{'group_by':'qualification'}"/>
+                    <filter name="department" string="Department" context="{'group_by':'department'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+</odoo>

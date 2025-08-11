@@ -1,0 +1,22 @@
+{
+    'name': 'Hospital',
+'version':"18.0.1.1",
+    'license':"LGPL-3",
+    'summary':"""An Hospital management""",
+    'description':"""For Hospital Purpose """,
+    'author':"Cybrosys",
+    'category':"Education",
+    'website':"www.cybrosys.com",
+    'maintainer':"Cybrosys Technology Pvt Ltd <info@cybrosys.com>",
+    'sequence':1,
+    'data':["security/ir.model.access.csv",
+            "views/patient_views.xml",
+            "views/doctor_views.xml",
+            "views/reg_views.xml",
+            "views/prescription_views.xml",
+            "views/medicine_views.xml",
+            "views/patient_menus.xml"],
+    'application':True,
+    # 'auto_install':True,
+    'installable':True
+}

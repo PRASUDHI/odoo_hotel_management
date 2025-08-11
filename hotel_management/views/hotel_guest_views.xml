@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hotel_guest_view_form" model="ir.ui.view">
+        <field name="name">hotel.guest.view.form</field>
+        <field name="model">hotel.guest</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="guest_id"/>
+                        <field name="age"/>
+                        <field name="gender"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hotel_guest_view_list" model="ir.ui.view">
+        <field name="name">hotel.guest.view.list</field>
+        <field name="model">hotel.guest</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="guest_id"/>
+                <field name="age"/>
+                <field name="gender"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hotel_guest_action" model="ir.actions.act_window">
+        <field name="name">Hotel Guest</field>
+        <field name="res_model">hotel.guest</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_noncontent_smiling_face"></p>
+        </field>
+    </record>
+
+</odoo>

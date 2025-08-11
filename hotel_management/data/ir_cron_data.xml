@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+   <data noupdate="1">
+       <record id="ir_cron_send_checkout_email" model="ir.cron">
+           <field name="name">Send Checkout Emails</field>
+           <field name="model_id" ref="hotel_management.model_hotel_accommodation"/>
+           <field name="state">code</field>
+           <field name="code">model.action_send_checkout_email()</field>
+           <field name='interval_number'>1</field>
+           <field name='interval_type'>days</field>
+       </record>
+
+       <record id="action_create_lunch_from_food" model="ir.actions.server">
+           <field name="name">Create Lunch Product from Food</field>
+           <field name="model_id" ref="hotel_management.model_hotel_food"/>
+           <field name="state">code</field>
+           <field name="code">model.action_create_product()</field>
+       </record>
+
+       <record id="automated_action_create_lunch_from_food" model="base.automation">
+           <field name="name">Create Lunch Product When Food Is Created</field>
+           <field name="model_id" ref="hotel_management.model_hotel_food"/>
+           <field name="trigger">on_create_or_write</field>
+           <field name="action_server_ids" eval="[(4, ref('hotel_management.action_create_lunch_from_food'))]"/>
+       </record>
+
+
+
+
+
+       <record id="ir_cron_data_update_state" model="ir.cron">
+            <field name="name">Update state</field>
+            <field name="model_id" ref="model_hotel_accommodation"/>
+            <field name="state">code</field>
+            <field name="code">model.action_archive_accommodation()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+        </record>
+   </data>
+</odoo>
+
+

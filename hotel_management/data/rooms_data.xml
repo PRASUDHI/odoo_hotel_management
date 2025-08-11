@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+         <record id="facility_ac" model="hotel.facility">
+            <field name="name">AC</field>
+        </record>
+        <record id="facility_fridge" model="hotel.facility">
+            <field name="name">Fridge</field>
+        </record>
+        <record id="facility_wifi" model="hotel.facility">
+            <field name="name">Wifi</field>
+        </record>
+
+        <record id="room_one" model="hotel.rooms">
+            <field name="name">Room1</field>
+            <field name="bed">single</field>
+            <field name="available_beds">2</field>
+            <field name="rent">100</field>
+            <field name="facility" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
+            <field name="state">available</field>
+        </record>
+        <record id="room_two" model="hotel.rooms">
+            <field name="name">Room2</field>
+            <field name="bed">single</field>
+            <field name="available_beds">1</field>
+            <field name="rent">100</field>
+            <field name="facility" eval="[(6, 0, [ ref('facility_wifi')])]"/>
+            <field name="state">available</field>
+        </record>
+        <record id="room_three" model="hotel.rooms">
+            <field name="name">Room3</field>
+            <field name="bed">single</field>
+            <field name="available_beds">5</field>
+            <field name="rent">400</field>
+            <field name="facility" eval="[(6, 0, [ ref('facility_ac')])]"/>
+            <field name="state">not_available</field>
+        </record>
+        <record id="room_four" model="hotel.rooms">
+            <field name="name">Room4</field>
+            <field name="bed">dormitory</field>
+            <field name="available_beds">5</field>
+            <field name="rent">500</field>
+            <field name="facility" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
+            <field name="state">available</field>
+        </record>
+        <record id="room_five" model="hotel.rooms">
+            <field name="name">Room5</field>
+            <field name="bed">double</field>
+            <field name="available_beds">4</field>
+            <field name="rent">460</field>
+            <field name="facility" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
+            <field name="state">available</field>
+        </record>
+    </data>
+</odoo>

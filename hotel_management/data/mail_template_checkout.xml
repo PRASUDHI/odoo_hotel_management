@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+  <data>
+    <record id="mail_template_checkout" model="mail.template">
+      <field name="name">Guest Checkout Email</field>
+      <field name="model_id" ref="hotel_management.model_hotel_accommodation"/>
+      <field name="subject">We hope you enjoyed your stay!</field>
+      <field name="email_from">{{user.email}}</field>
+      <field name="email_to">{{ object.guest_id.email }}</field>
+
+      <field name="body_html"><![CDATA[
+        <p>Hii,</p>
+        <p>Thank you for staying with us. We hope you had a pleasant experience.</p>
+        <p>Regards,<br/>Hotel Team</p>
+      ]]></field>
+    </record>
+  </data>
+</odoo>
+
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="facility_ac" model="hotel.facility">
+            <field name="name">AC</field>
+        </record>
+        <record id="facility_fridge" model="hotel.facility">
+            <field name="name">Fridge</field>
+        </record>
+        <record id="facility_wifi" model="hotel.facility">
+            <field name="name">Wifi</field>
+        </record>
+
+    </data>
+</odoo>

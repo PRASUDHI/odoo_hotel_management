@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_patient" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="help" type="html">
+            <p class="o_view_noncontent_smiling_face"></p>
+        </field>
+    </record>
+
+
+    <record id="view_patient_form" model="ir.ui.view">
+        <field name="name">patient.view.form</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="age"/>
+                            <field name="dob"/>
+
+                        </group>
+
+                        <group>
+                            <field name="gender"/>
+                            <field name="blood_group"/>
+                        </group>
+                        <notebook>
+                            <page string="Personal">
+                                <group>
+                                    <group>
+                                        <field name="email"/>
+                                        <field name="phone"/>
+                                        <field name="address"/>
+                                    </group>
+                                    <group>
+                                        <field name="emergency_contact"/>
+                                        <field name="medical_history"/>
+                                        <field name="active"/>
+                                    </group>
+
+                                </group>
+
+                            </page>
+                            <page string="Prescription">
+                                <group>
+                                    <field name="prescription_id">
+                                        <list>
+                                            <field name="reference_number"/>
+                                        </list>
+                                    </field>
+
+                                </group>
+                            </page>
+                        </notebook>
+
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <record id="view_patient_list" model="ir.ui.view">
+        <field name="name">patient.view.list</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" optional="show"/>
+                <field name="age" optional="hide"/>
+                <!--                <field name="dob"/>-->
+                <field name="gender"/>
+            </list>
+        </field>
+
+    </record>
+
+
+
+    <record id="view_patient_search" model="ir.ui.view">
+        <field name="name">patient.view.search</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="My Custom Name"/>
+                <field name="gender"/>
+                <field name="blood_group"/>
+                <field name="medical_history"/>
+                <filter string="Male" name="gender" domain="[('gender','=','male')]"/>
+                <filter string="Female" name="gender" domain="[('gender','=','female')]"/>
+                <group expand="'1" string="Group By">
+                    <filter name="blood_group" string="Blood Group" context="{'group_by':'blood_group'}"/>
+                    <filter name="gender" string="Gender" context="{'group_by':'gender'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

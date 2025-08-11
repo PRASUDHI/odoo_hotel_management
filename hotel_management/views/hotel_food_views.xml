@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="hotel_food_view_form" model="ir.ui.view">
+        <field name="name">hotel.food.view.form</field>
+        <field name="model">hotel.food</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="image" widget="image" nolabel="1" class="oe_avatar" />
+                            <div class="oe_title">
+                                <h1>
+                                    <field name="name"/>
+                                </h1>
+                            </div>
+                            <field name="item"/>
+                            <field name="food_id"/>
+                            <field name="price" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="quantity"/>
+                            <field name="description"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hotel_food_view_list" model="ir.ui.view">
+        <field name="name">hotel.food.view.list</field>
+        <field name="model">hotel.food</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="price"/>
+                <field name="quantity"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record id="food_list_view_form" model="ir.ui.view">
+        <field name="name">order.food.view.form</field>
+        <field name="model">hotel.food</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="image" widget="image" class="oe_avatar float-start"
+                               options="{'image_preview': 'image'}"/>
+                        <field name="name" readonly="1"/>
+                        <field name="price" readonly="1"/>
+                        <field name="quantity"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_create_list" string="Add to List" type="object"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="order_food_action_form" model="ir.actions.act_window">
+        <field name="name">Order Food</field>
+        <field name="res_model">hotel.food</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="food_list_view_form"/>
+        <field name="target">current</field>
+    </record>
+
+
+    <record id="hotel_food_action" model="ir.actions.act_window">
+        <field name="name">Food Items</field>
+        <field name="res_model">hotel.food</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="help" type="html">
+            <p class="o_view_noncontent_smiling_face"/>
+        </field>
+    </record>
+</odoo>

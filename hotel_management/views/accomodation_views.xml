@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="hotel_accommodation_view_form" model="ir.ui.view">
+        <field name="name">hotel.accommodation.view.form</field>
+        <field name="model">hotel.accommodation</field>
+        <field name="arch" type="xml">
+            <form class="o_sale_order">
+                <header>
+                    <button name="action_check_in" type="object" string="Check In" invisible="room_status != 'draft'"/>
+                    <button name="action_check_out" type="object" string="Check Out"
+                            invisible="room_status != 'check_in'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="room_status != 'draft'"/>
+                    <field name="room_status" widget="statusbar"
+                           statusbar_visible="draft,check_in,check_out,cancel"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Paid"
+                            invisible="payment_state != 'paid' or move_type not in ('out_invoice')"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="reference_number" nolabel="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <group>
+                                <field name="guest_id"    context="{ 'show_address': 1}"
+                                readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                                <field name="number_of_guests"
+                                       readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                                <field name="guest_ids" widget="many2many_tags" invisible="1"
+                                       readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="active" />
+                            <field name="check_in"/>
+                            <field name="check_out"/>
+                            <field name="cancel"/>
+                            <field name="expected_days"
+                                   readonly="room_status in ['cancel', 'check_out']"/>
+                            <field name="expected_date"
+                                   decoration-danger="expected_date_color == 'red'"
+                                   decoration-warning="expected_date_color == 'yellow'"
+                            />
+                        </group>
+                        <group>
+                            <field name="bed"
+                                   readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                            <field name="facility_ids" widget="many2many_tags" options="{'no_create': True}"
+                                   readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                            <field name="rooms_id" options="{'no_create': True}"
+                                   domain="[('id', 'in', filtered_room_ids)]"
+                                   readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Information">
+                            <field name="accommodation_ids"
+                                   readonly="room_status in ['cancel', 'check_in', 'check_out']">
+                                <list editable="bottom">
+                                    <field name="guest_id"/>
+                                    <field name="age"/>
+                                    <field name="gender"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Payment Lines">
+
+
+                            <field name="payment_line_ids" context="{'active_id':id,}">
+
+
+                                <list editable="bottom">
+                                    <field name="description"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="price"/>
+                                    <field name="total"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer " colspan="4">
+                                <field name="total_amount" readonly="1" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <chatter>
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="message_ids"/>
+                    <field name="address_attach"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="hotel_accommodation_view_list" model="ir.ui.view">
+        <field name="name">hotel.accommodation.view.list</field>
+        <field name="model">hotel.accommodation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="reference_number"/>
+                <field name="guest_id"/>
+                <field name="check_in"/>
+                <field name="expected_date"
+                       decoration-danger="expected_date_color == 'red'"
+                       decoration-warning="expected_date_color == 'yellow'"/>
+                <field name="check_out"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hotel_accommodation_view_search" model="ir.ui.view">
+        <field name="name">hotel.accommodation.view.search</field>
+        <field name="model">hotel.accommodation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="rooms_id" string="Rooms"/>
+                <field name="guest_id" string="Guest"/>
+                <field name="reference_number" string="Sequence"/>
+                <filter string="CheckIn" name="room_status" domain="[('room_status','=','check_in')]"/>
+                <filter string="Current-day checkouts" name="check_out" domain="[('check_out', '&gt;=', datetime.datetime.combine(context_today(),
+                    datetime.time(0,0,0))), ('check_out', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter string="Next-day expected checkouts" name="check_out"
+                        domain="[('check_out','&gt;=', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="'1" string="Group By">
+                    <filter name="rooms_id" string="Room" context="{'group_by':'rooms_id'}"/>
+                    <filter name="bed" string="Type" context="{'group_by':'bed'}"/>
+                    <filter name="room_status" string="State" context="{'group_by':'room_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="hotel_accommodation_action" model="ir.actions.act_window">
+        <field name="name">Accommodation</field>
+        <field name="res_model">hotel.accommodation</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('room_status', '!=', 'cancel')]</field>
+        <field name="help" type="html">
+            <p class="o_view_noncontent_smiling_face"/>
+        </field>
+    </record>
+
+</odoo>
+
+
+
+

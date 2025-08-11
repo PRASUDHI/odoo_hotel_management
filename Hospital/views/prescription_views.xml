@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_prescription" model="ir.actions.act_window">
+        <field name="name">Prescription</field>
+        <field name="res_model">hospital.prescription</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_noncontent_smiling_face"></p>
+        </field>
+    </record>
+
+
+    <record id="view_prescription_form" model="ir.ui.view">
+        <field name="name">prescription.view.form</field>
+        <field name="model">hospital.prescription</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="reference_number"/>
+                        <field name="patient_id"/>
+                        <field name="pharmacy_name"/>
+                        <field name="prescription_date"/>
+                        <field name="doctor_id"/>
+                        <notebook>
+                    <page string="Medicines">
+                        <field name="medicine_details">
+                            <list >
+                                <field name="name"/>
+                                <field name="dosage"/>
+                                <field name="duration"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+
+                    </group>
+                </sheet>
+            </form>
+        </field>
+
+    </record>
+
+
+    <data noupdate="1">
+       <record id="ir_sequence_hospital_prescription" model="ir.sequence">
+           <field name="name">Prescription ID</field>
+           <field name="code">hospital.prescription</field>
+           <field name="prefix">PR0</field>
+           <field name="padding">5</field>
+           <field name="number_next">1</field>
+           <field name="number_increment">1</field>
+           <field name="company_id" eval="False"/>
+       </record>
+   </data>
+
+
+
+    <record id="view_prescription_list" model="ir.ui.view">
+        <field name="name">prescription.view.list</field>
+        <field name="model">hospital.prescription</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="reference_number"/>
+                <field name="patient_id"/>
+                <field name="prescription_date"/>
+
+            </list>
+        </field>
+    </record>
+</odoo>
+
+

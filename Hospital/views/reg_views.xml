@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_appointment" model="ir.actions.act_window">
+        <field name="name">Appointment</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_noncontent_smiling_face"></p>
+        </field>
+    </record>
+
+    <record id="view_appointment_form" model="ir.ui.view">
+        <field name="name">appointment.view.form</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="confirmed"
+                            type="object"
+                            string="Confirm"
+                            modifiers="{'invisible': [['can_show_action_buttons', '=', False]]}"/>
+
+                    <button name="cancelled"
+                            type="object"
+                            string="Cancel"
+                            modifiers="{'invisible': [['can_show_action_buttons', '=', False]]}"/>
+
+
+                    <field name="appointment_status" widget="statusbar"
+                           statusbar_visible="draft,confirmed,done,cancelled"/>
+
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="patient_id"/>
+                        <field name="age"/>
+                        <field name="doctor_id"/>
+                        <field name="department"/>
+                        <field name="consulting_fee"/>
+                        <field name="appointment_date"/>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+
+    </record>
+
+    <record id="view_appointment_list" model="ir.ui.view">
+        <field name="name">appointment.view.list</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="doctor_id"/>
+            </list>
+        </field>
+
+    </record>
+
+
+    <data noupdate="1">
+       <record id="ir_sequence_hospital_appointment" model="ir.sequence">
+           <field name="name">Appointment No</field>
+           <field name="code">hospital.appointment</field>
+           <field name="prefix">TR0</field>
+           <field name="padding">5</field>
+           <field name="number_next">1</field>
+           <field name="number_increment">1</field>
+           <field name="company_id" eval="False"/>
+       </record>
+   </data>
+
+</odoo>

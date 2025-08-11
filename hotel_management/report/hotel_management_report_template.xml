@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="report_hotel_management">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        <div class="text-center">
+                            <h2>Accommodation</h2>
+                        </div>
+                        <div>
+<!--                            <t t-esc="data.check_in"/>-->
+
+                            Date From:
+                            <span t-field="o.check_in"/>
+                        </div>
+                        <div>
+                            Date To:
+                            <span t-field="o.check_in"/>
+                        </div>
+                        <div t-if="o.guest_id.name">
+                            Name:
+                            <span t-field="o.guest_id.name"/>
+                        </div>
+                    </div>
+                    <table width="400" border="0" cellspacing="0" cellpadding="0">
+                        <thead>
+                            <tr>
+<!--                                <th>SL.No</th>-->
+                                <th>Guest</th>
+                                <th>Check-In</th>
+                                <th>Check-Out</th>
+                                <th>State</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr >
+<!--                                <td>-->
+<!--                                    <t t-esc='o.sl_no'/>-->
+<!--                                </td>-->
+                                <td>
+                                    <t t-esc='o.guest_id.name'/>
+                                </td>
+                                <td>
+                                    <t t-esc='o.check_in'/>
+                                </td>
+                                <td>
+                                    <t t-esc='o.check_in'/>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

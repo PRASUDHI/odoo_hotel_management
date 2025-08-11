@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--    Main menu-->
+    <menuitem id="menu_hotel_management_root" name="Hotel ERP" sequence="1"/>
+    <menuitem id="menu_hotel_management_reception" name="Reception" parent="menu_hotel_management_root" sequence="1"/>
+    <menuitem id="menu_hotel_management_order_food" name="Order Food" parent="menu_hotel_management_root" action="order_food_action"  sequence="2"/>
+    <menuitem id="menu_hotel_management_reporting" name="Reporting" parent="menu_hotel_management_root"   sequence="3"/>
+    <menuitem id="menu_hotel_management_configuration" name="Configuration" parent="menu_hotel_management_root" sequence="4"/>
+
+
+
+    <menuitem id="menu_hotel_management_rooms" name="Rooms" parent="menu_hotel_management_configuration" action="hotel_rooms_action" />
+    <menuitem id="menu_hotel_management_facility" name="Facility" parent="menu_hotel_management_configuration" action="hotel_facility_action"/>
+    <menuitem id="menu_hotel_management_food" name="Food Items" parent="menu_hotel_management_configuration" action="hotel_food_action"/>
+    <menuitem id="menu_hotel_management_food_category" name="Food Category" parent="menu_hotel_management_configuration" action="food_category_action"/>
+    <menuitem id="menu_hotel_management_accommodation" name="Accommodation" parent="menu_hotel_management_reception" action="hotel_accommodation_action" />
+    <menuitem id="menu_hotel_management_guest" name="Guests" parent="menu_hotel_management_reception" action="account.res_partner_action_customer" />
+    <menuitem id="menu_hotel_management_report" name="Hotel Management Report" parent="menu_hotel_management_reporting" action="action_report_accommodation"/>
+
+
+</odoo>
