@@ -9,28 +9,34 @@ class AccommodationReportWizard(models.TransientModel):
     _name = "accommodation.report.wizard"
     _description = "hotel management report"
 
-    guest_id = fields.Many2one('res.partner')
-    date_from = fields.Date(string="Date From")
-    date_to = fields.Date(string="Date To")
-    accommodation_id=fields.Many2one('hotel.accommodation')
 
 
 
 
+    date_from = fields.Date("Date From")
+    date_to = fields.Date("Date To")
+    guest_id = fields.Many2one("res.partner", string="Guest")
 
     def action_print_report(self):
-
-
         self.ensure_one()
-        query = """
-                    select row_number() OVER () AS sl_no, guest_id as  guest,check_in as date_from,check_in as  date_to 
-                    from hotel_accommodation as tb"""
-        if self.date_from:
-            query += """ where tb.check_in >= '%s' and tb.check_in <= '%s' and tb.guest_id = '%s'""" % (self.date_from,self.date_to,self.guest_id.id)
+        data = {
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+            'guest_id': self.guest_id.id if self.guest_id else False,
+        }
+        # return self.env.ref('hotel_management.hotel_management_report_pdf').report_action(None, data=data)
 
-        self.env.cr.execute(query)
-        result=self.env.cr.dictfetchall()
-        data = {'result': result,}
-        print("accommodation", result)
-        return self.env.ref('hotel_management.action_report_hotel_management').report_action(None, data=data)
+        report_reference = self.env.ref('hotel_management.hotel_management_report_pdf').report_action(None, data=data)
+        report_reference.update({'close_on_report_download': True})
+        return report_reference
 
+    def print_xls_report(self):
+        pass
+    #     self.ensure_one()
+
+    #     data = {
+    #         'date_from': self.date_from,
+    #         'date_to': self.date_to,
+    #         'guest_id': self.guest_id.id if self.guest_id else False,
+    #     }
+    #     return self.env.ref('hotel_management.hotel_management_report_xlsx').report_action(None, data=data)

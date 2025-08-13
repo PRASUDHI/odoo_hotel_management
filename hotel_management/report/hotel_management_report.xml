@@ -2,15 +2,25 @@
 <odoo>
 
 
-    <record id="action_report_hotel_management" model="ir.actions.report">
+    <record id="hotel_management_report_pdf" model="ir.actions.report">
         <field name="name">Hotel Management Report</field>
-        <field name="model">hotel.accommodation</field>
+        <field name="model">accommodation.report.wizard</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">hotel_management.report_hotel_management</field>
-        <field name="report_file">hotel_management.report_hotel_management</field>
+        <field name="report_name">hotel_management.hotel_management_report_template</field>
+        <field name="report_file">hotel_management.hotel_management_report_template</field>
         <field name="binding_model_id" ref="hotel_management.model_hotel_accommodation"/>
         <field name="binding_type">report</field>
     </record>
+
+<!--    <record id="hotel_management_report_xlsx" model="ir.actions.report">-->
+<!--        <field name="name">Hotel Management Report</field>-->
+<!--        <field name="model">accommodation.report.wizard</field>-->
+<!--        <field name="report_type">xlsx</field>-->
+<!--        <field name="report_name">hotel_management.hotel_management_xlsx_template</field>-->
+<!--        <field name="report_file">hotel_management.hotel_management_xlsx_template</field>-->
+<!--        <field name="binding_model_id" ref="hotel_management.model_hotel_accommodation"/>-->
+<!--        <field name="binding_type">report</field>-->
+<!--    </record>-->
 
 
 </odoo>

@@ -8,7 +8,7 @@
             <form string="Print Report">
                 <group>
                     <group>
-                        <field name="guest_id"/>
+                        <field name="guest_id" />
                     </group>
                     <group>
                         <field name="date_from"/>
@@ -16,7 +16,8 @@
                     </group>
                 </group>
                 <footer>
-                    <button name="action_print_report"  type="object"  string="Print Report" class="btn-primary"/>
+                    <button name="action_print_report"  type="object"  string="PDF Report" class="btn-primary"/>
+                    <button name="print_xls_report"  type="object"  string="XLSX Report" class="btn-primary"/>
                     <button name="cancel" string="Cancel" special="cancel"/>
                 </footer>
             </form>

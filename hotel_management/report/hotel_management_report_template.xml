@@ -1,60 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <template id="report_hotel_management">
+    <template id="hotel_management_report_template">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <div class="oe_structure"/>
-                        <div class="text-center">
-                            <h2>Accommodation</h2>
-                        </div>
-                        <div>
-<!--                            <t t-esc="data.check_in"/>-->
+            <t t-call="web.external_layout">
+                <h2 style="text-align:center;">Hotel Management Report</h2>
+                <p>
+                    Date From:
+                    <t t-esc="date_from"/>
+                    <br/>
+                    Date To:
+                    <t t-esc="date_to"/>
+                    <br/>
+                    Guest:
+                    <t t-esc="name"/>
+                    <br/>
+                </p>
+                <table class="table table-bordered mt32">
+                    <thead>
+                        <tr>
+                            <th class="text-center"><span>SL.No</span></th>
+                            <th class="text-center"><span>Guest</span></th>
+                            <th class="text-center"><span>Check In</span></th>
+                            <th class="text-center"><span>Check Out</span></th>
+                            <th class="text-center"><span>State</span></th>
+                        </tr>
+                    </thead>
 
-                            Date From:
-                            <span t-field="o.check_in"/>
-                        </div>
-                        <div>
-                            Date To:
-                            <span t-field="o.check_in"/>
-                        </div>
-                        <div t-if="o.guest_id.name">
-                            Name:
-                            <span t-field="o.guest_id.name"/>
-                        </div>
-                    </div>
-                    <table width="400" border="0" cellspacing="0" cellpadding="0">
-                        <thead>
-                            <tr>
-<!--                                <th>SL.No</th>-->
-                                <th>Guest</th>
-                                <th>Check-In</th>
-                                <th>Check-Out</th>
-                                <th>State</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr >
-<!--                                <td>-->
-<!--                                    <t t-esc='o.sl_no'/>-->
-<!--                                </td>-->
-                                <td>
-                                    <t t-esc='o.guest_id.name'/>
-                                </td>
-                                <td>
-                                    <t t-esc='o.check_in'/>
-                                </td>
-                                <td>
-                                    <t t-esc='o.check_in'/>
-                                </td>
-
-                            </tr>
-                        </tbody>
-                    </table>
-                </t>
+                    <tbody >
+                        <tr t-foreach="docs" t-as="line">
+                            <td>
+                                <t t-esc="line['sl_no']"/>
+                            </td>
+                            <td>
+                                <t t-esc="line['name']"/>
+                            </td>
+                            <td>
+                                <t t-esc="line['date_from']"/>
+                            </td>
+                            <td>
+                                <t t-esc="line['date_to']"/>
+                            </td>
+                            <td>
+                                <t t-esc="line['state']"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </t>
         </t>
     </template>
-
 </odoo>
