@@ -32,6 +32,10 @@
              "report/hotel_management_report.xml",
              "report/hotel_management_report_template.xml"
              ],
+    'assests': {
+        'web.assests_backend': ['hotel_management/static/js/action_manager.js']
+    },
+
     'application': True,
     'installable': True
 

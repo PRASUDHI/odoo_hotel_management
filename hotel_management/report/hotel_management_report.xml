@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
-
     <record id="hotel_management_report_pdf" model="ir.actions.report">
         <field name="name">Hotel Management Report</field>
         <field name="model">accommodation.report.wizard</field>
@@ -11,16 +9,4 @@
         <field name="binding_model_id" ref="hotel_management.model_hotel_accommodation"/>
         <field name="binding_type">report</field>
     </record>
-
-<!--    <record id="hotel_management_report_xlsx" model="ir.actions.report">-->
-<!--        <field name="name">Hotel Management Report</field>-->
-<!--        <field name="model">accommodation.report.wizard</field>-->
-<!--        <field name="report_type">xlsx</field>-->
-<!--        <field name="report_name">hotel_management.hotel_management_xlsx_template</field>-->
-<!--        <field name="report_file">hotel_management.hotel_management_xlsx_template</field>-->
-<!--        <field name="binding_model_id" ref="hotel_management.model_hotel_accommodation"/>-->
-<!--        <field name="binding_type">report</field>-->
-<!--    </record>-->
-
-
 </odoo>
