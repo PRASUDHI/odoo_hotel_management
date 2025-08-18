@@ -1,9 +1,7 @@
-from odoo import fields, models
+from odoo import fields, models, api, _
 import json
+from odoo import models
 from odoo.tools import json_default
-
-
-
 
 
 class AccommodationReportWizard(models.TransientModel):
@@ -32,20 +30,21 @@ class AccommodationReportWizard(models.TransientModel):
         return report_reference
 
     def print_xls_report(self):
-        print("kwertyui")
         data = {
             'date_from': self.date_from,
             'date_to': self.date_to,
             'guest_id': self.guest_id.id if self.guest_id else False,
         }
-
+        print("fdfd", data)
         return {
             'type': 'ir.actions.report',
             'data': {'model': 'hotel.accommodation',
-                     'options': json.dumps(data,
-                                           default=json_default),
+                    'options': json.dumps(data,
+                                          default=json_default),
                      'output_format': 'xlsx',
-                     'report_name': 'Sales Excel Report',
+                     'report_name': 'Excel Report',
                      },
             'report_type': 'xlsx',
+            # 'close_on_report_download': True,
         }
+

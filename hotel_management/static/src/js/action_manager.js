@@ -2,10 +2,16 @@
 import { registry } from "@web/core/registry";
 import { BlockUI } from "@web/core/ui/block_ui";
 import { download } from "@web/core/network/download";
+
+
+
+
+
+
 registry.category("ir.actions.report handlers").add("xlsx", async(action)=> {
    //Passing data to the controller to print the excel file
   if (action.report_type === 'xlsx') {
-    console.log("ertyui")
+    console.log("sdfghj")
           BlockUI;
 await download({
                url: '/xlsx_reports',

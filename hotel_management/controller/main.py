@@ -3,14 +3,12 @@ from odoo import http
 from odoo.http import content_disposition, request
 from odoo.tools import html_escape
 
-
 class XLSXReportController(http.Controller):
     @http.route('/xlsx_reports', type='http', auth='user',
                 csrf=False)
     def get_report_xlsx(self, model, options, output_format, report_name,
                         token='ads'):
         """ Return data to python file passed from the javascript"""
-        print("dskghhd", self)
         session_unique_id = request.session.uid
         report_object = request.env[model].with_user(session_unique_id)
         options = json.loads(options)
