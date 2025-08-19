@@ -28,3 +28,5 @@ class HotelPaymentLine(models.Model):
         for rec in self:
             rec.total = rec.quantity * rec.price
 
+
+

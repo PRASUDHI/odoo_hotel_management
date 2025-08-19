@@ -19,6 +19,11 @@ class OrderFood(models.Model):
     food_item_ids = Many2many('hotel.food', string="Food Item", compute="_compute_food_item_ids", store=True,
                               readonly=False)
     food_order_ids = fields.One2many('order.list', 'food_list_id')
+    accommodation_id = fields.Many2one(
+        'hotel.accommodation',
+        string="Accommodation",
+        ondelete='cascade'
+    )
 
     @api.depends('food_category_ids')
     def _compute_food_item_ids(self):

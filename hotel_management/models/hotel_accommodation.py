@@ -66,13 +66,78 @@ class HotelAccommodation(models.Model):
                                  default=lambda self: self.env.user.company_id.id)
     currency_id = fields.Many2one('res.currency', string="Currency", related="company_id.currency_id",
                                   default=lambda self: self.env.user.company_id.currency_id.id)
-
     order_list_ids = fields.One2many('order.list', 'accommodation_id', string="Food Orders")
-
     payment_line_ids = fields.One2many('hotel.payment.line', 'accommodation_id', string='Payment Lines')
-
     expected_date_color = fields.Char(compute='_compute_expected_date_color', store=False)
     active = fields.Boolean(default=True)
+    invoice_count = fields.Integer(string="Invoices", compute="_compute_invoice_count", default=0)
+    food_order_count = fields.Integer(string="Food Orders", compute="_compute_food_order_count", default=0)
+
+
+    def _compute_invoice_count(self):
+        for record in self:
+            record.invoice_count = self.env['account.move'].search_count([('accommodation_id', '=', self.id)])
+
+
+
+
+    def action_view_invoices(self):
+        self.ensure_one()
+        return  {
+            'type': 'ir.actions.act_window',
+            'name': 'Invoices',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain': [
+                ('move_type', '=', 'out_invoice'),
+                ('accommodation_id', '=', self.id)
+            ],
+            'context': {'default_accommodation_id': self.id},
+        }
+
+
+
+
+    def _compute_food_order_count(self):
+        for rec in self:
+            rec.food_order_count = self.env['order.food'].search_count([
+                ('accommodation_id', '=', self.id)
+            ])
+
+
+    def action_view_food_orders(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Food Orders',
+            'res_model': 'order.food',
+            'view_mode': 'list,form',
+            'domain': [('accommodation_id', '=', self.id)],
+            'context': {
+                'default_accommodation_id': self.id
+            },
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -264,7 +329,7 @@ class HotelAccommodation(models.Model):
             'partner_id': self.guest_id.id,
             'move_type': 'out_invoice',
             'invoice_line_ids': [
-                Command.create({
+                (0, 0, {
                     'name': line.name,
                     'quantity': line.quantity,
                     'price_unit': line.price,

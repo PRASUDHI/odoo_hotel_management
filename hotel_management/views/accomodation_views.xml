@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <form class="o_sale_order">
                 <header>
+
                     <button name="action_check_in" type="object" string="Check In" invisible="room_status != 'draft'"/>
                     <button name="action_check_out" type="object" string="Check Out"
                             invisible="room_status != 'check_in'"/>
@@ -15,6 +16,25 @@
                            statusbar_visible="draft,check_in,check_out,cancel"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+
+
+                        <button name="action_view_invoices"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-invoice">
+                            <field name="invoice_count" widget="statinfo" string="Invoices"/>
+                        </button>
+
+                        <button name="action_view_food_orders"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-utensils">
+                            <field name="food_order_count" widget="statinfo" string="Food Orders"/>
+                        </button>
+
+                    </div>
+
                     <widget name="web_ribbon" title="Paid"
                             invisible="payment_state != 'paid' or move_type not in ('out_invoice')"/>
                     <div class="oe_title">
@@ -25,8 +45,8 @@
                     <group>
                         <group>
                             <group>
-                                <field name="guest_id"    context="{ 'show_address': 1}"
-                                readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                                <field name="guest_id" context="{ 'show_address': 1}"
+                                       readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
                                 <field name="number_of_guests"
                                        readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
                                 <field name="guest_ids" widget="many2many_tags" invisible="1"
@@ -34,7 +54,7 @@
                             </group>
                         </group>
                         <group>
-                            <field name="active" />
+                            <field name="active"/>
                             <field name="check_in"/>
                             <field name="check_out"/>
                             <field name="cancel"/>

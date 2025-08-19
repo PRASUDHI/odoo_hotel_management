@@ -29,22 +29,41 @@ class AccommodationReportWizard(models.TransientModel):
         report_reference.update({'close_on_report_download': True})
         return report_reference
 
+
+
     def print_xls_report(self):
         data = {
             'date_from': self.date_from,
             'date_to': self.date_to,
             'guest_id': self.guest_id.id if self.guest_id else False,
         }
-        print("fdfd", data)
         return {
             'type': 'ir.actions.report',
-            'data': {'model': 'hotel.accommodation',
-                    'options': json.dumps(data,
-                                          default=json_default),
+            'data': {'model': 'report.hotel_management.hotel_management_report_template',
+                     'options': json.dumps(data,
+                                           default=json_default),
                      'output_format': 'xlsx',
-                     'report_name': 'Excel Report',
+                     'report_name': 'Sales Excel Report',
                      },
             'report_type': 'xlsx',
-            # 'close_on_report_download': True,
+
         }
+        # action_window = {
+        #     'type': 'ir.actions.report',
+        #     'model':'report.hotel_management.hotel_management_report_template',
+        #     'options':json.dumps(data,default=json_default),
+        #     'output_format': 'xlsx',
+        #     'report_name': 'Excel Report',
+        #
+        # }
+        #
+        # action_close = {'type': 'ir.actions.act_window_close'}
+        #
+        # return {
+        #     'type': 'ir.actions.act_multi',
+        #     'actions': [action_window, action_close]
+        # }
+
+
+
 
