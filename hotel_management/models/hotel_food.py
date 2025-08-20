@@ -51,21 +51,9 @@ class HotelFood(models.Model):
             'description': self.description,
             'food_list_id': order_list_id,
             'accommodation_id': room_id,
-
         }
-        vals_payment = {
-            'name': self.name,
-            'quantity': self.quantity,
-            'price': self.price,
-            'description': self.description,
-            'food_list_id': order_list_id,
-            'accommodation_id': room_id,
-
-        }
-
-        vals = self.env['order.list'].create(vals_list)
-        value = self.env['hotel.payment.line'].create(vals_payment)
-        return vals, value
+        value = self.env['order.list'].create(vals_list)
+        return value
 
 
 

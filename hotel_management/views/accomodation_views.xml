@@ -19,17 +19,11 @@
                     <div class="oe_button_box" name="button_box">
 
 
-                        <button name="action_view_invoices"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-file-invoice">
+                        <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="invoice_count == 0">
                             <field name="invoice_count" widget="statinfo" string="Invoices"/>
                         </button>
 
-                        <button name="action_view_food_orders"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-utensils">
+                        <button name="action_view_food_orders" type="object" class="oe_stat_button" icon="fa-shopping-basket" invisible="room_status != 'check_in'">
                             <field name="food_order_count" widget="statinfo" string="Food Orders"/>
                         </button>
 
@@ -72,7 +66,7 @@
                                    readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
                             <field name="rooms_id" options="{'no_create': True}"
                                    domain="[('id', 'in', filtered_room_ids)]"
-                                   readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                                   readonly="room_status in ['cancel',  'check_out']"/>
                         </group>
                     </group>
                     <notebook>
@@ -93,7 +87,7 @@
 
 
                                 <list editable="bottom">
-                                    <field name="description"/>
+                                    <field name="name"/>
                                     <field name="quantity"/>
                                     <field name="uom_id"/>
                                     <field name="price"/>

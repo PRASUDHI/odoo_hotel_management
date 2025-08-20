@@ -19,7 +19,7 @@ class HotelAccommodation(models.Model):
 
     reference_number = fields.Char(default=lambda self: _('New'), readonly=True, copy=False,
                                    help="Reference Number of the book")
-    guest_id = fields.Many2one('res.partner', string="Guest Name", domain="[('is_hotel_guest', '=', True)]")
+    guest_id = fields.Many2one('res.partner', string="Guest Name",required=True, domain="[('is_hotel_guest', '=', True)]")
 
     guest_ids = fields.Many2many('res.partner', string='Guests')
     number_of_guests = fields.Integer(string="Number of Guests", default=1)
@@ -37,7 +37,7 @@ class HotelAccommodation(models.Model):
         selection=[('single', 'Single'), ('double', 'Double'), ('dormitory', 'Dormitory')]
     )
     facility_ids = fields.Many2many('hotel.facility', string="Facility")
-    rooms_id = fields.Many2one('hotel.rooms', string="Room")
+    rooms_id = fields.Many2one('hotel.rooms',string="Room")
     filtered_room_ids = fields.Many2many('hotel.rooms', compute='_compute_filtered_rooms', string="Filtered Rooms")
     room_status = fields.Selection([
         ('draft', 'Draft'),
@@ -54,20 +54,19 @@ class HotelAccommodation(models.Model):
         selection=[('male', 'Male'), ('female', 'Female')]
     )
     invoice_id = fields.Many2one('account.move', string="Invoice")
+    product_id =fields.Many2one('product.product')
 
     payment_state = fields.Selection(related="invoice_id.payment_state", store=True, string="Payment State")
     move_type = fields.Selection(related="invoice_id.move_type", store=True, string="Move Type")
     accommodation_ids = fields.One2many('hotel.guest', 'accommodation_line_id')
     total_rent = fields.Float(string="Total Rent", compute="_compute_total_rent", store=True)
     food_total = fields.Float(string="Food Total", compute="_compute_food_total", store=True)
-    total_amount = fields.Float(string="Total Amount", compute="_compute_total_amount", store=True,
-                                currency_field="currency_id")
-    company_id = fields.Many2one('res.company', store=True, copy=False, string="Company",
-                                 default=lambda self: self.env.user.company_id.id)
-    currency_id = fields.Many2one('res.currency', string="Currency", related="company_id.currency_id",
-                                  default=lambda self: self.env.user.company_id.currency_id.id)
+    total_amount = fields.Float(string="Total Amount", compute="_compute_total_amount", store=True, currency_field="currency_id")
+    company_id = fields.Many2one('res.company', store=True, copy=False, string="Company",default=lambda self: self.env.user.company_id.id)
+    currency_id = fields.Many2one('res.currency', string="Currency", related="company_id.currency_id", default=lambda self: self.env.user.company_id.currency_id.id)
     order_list_ids = fields.One2many('order.list', 'accommodation_id', string="Food Orders")
     payment_line_ids = fields.One2many('hotel.payment.line', 'accommodation_id', string='Payment Lines')
+    payment_id =fields.Many2one('hotel.payment.line')
     expected_date_color = fields.Char(compute='_compute_expected_date_color', store=False)
     active = fields.Boolean(default=True)
     invoice_count = fields.Integer(string="Invoices", compute="_compute_invoice_count", default=0)
@@ -75,13 +74,15 @@ class HotelAccommodation(models.Model):
 
 
     def _compute_invoice_count(self):
+        """
+            To compute the number of invoice
+        """
         for record in self:
-            record.invoice_count = self.env['account.move'].search_count([('accommodation_id', '=', self.id)])
-
-
-
-
+            record.invoice_count = self.env['account.move'].search_count([('accommodation_id', '=', record.id)])
     def action_view_invoices(self):
+        """
+            Return the action for the views of the invoices linked to the transaction
+        """
         self.ensure_one()
         return  {
             'type': 'ir.actions.act_window',
@@ -94,53 +95,29 @@ class HotelAccommodation(models.Model):
             ],
             'context': {'default_accommodation_id': self.id},
         }
-
-
-
-
     def _compute_food_order_count(self):
-        for rec in self:
-            rec.food_order_count = self.env['order.food'].search_count([
-                ('accommodation_id', '=', self.id)
+        """
+                compute the ordered food count with search_count
+        """
+        for record in self:
+            record.food_order_count = self.env['order.food'].search_count([
+                ('room_id', '=', record.id)
             ])
-
-
     def action_view_food_orders(self):
+        """
+            Return the action for the views of the ordered food linked to the accommodation
+        """
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
             'name': 'Food Orders',
             'res_model': 'order.food',
             'view_mode': 'list,form',
-            'domain': [('accommodation_id', '=', self.id)],
+            'domain': [('room_id', '=', self.id)],
             'context': {
-                'default_accommodation_id': self.id
+                'default_room_id': self.id
             },
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def action_archive_accommodation(self):
         """
             archive the cancelled accommodation if it is cancelled two days ago
@@ -151,7 +128,6 @@ class HotelAccommodation(models.Model):
             ('cancel', '<', two_days_ago)
         ])
         records.write({'active': False})
-
 
     @api.model
     def action_send_checkout_email(self):
@@ -190,6 +166,11 @@ class HotelAccommodation(models.Model):
             else:
                 rec.expected_date_color = ''
 
+
+
+
+
+
     @api.depends('order_list_ids.total')
     def _compute_food_total(self):
         """
@@ -198,7 +179,7 @@ class HotelAccommodation(models.Model):
         for rec in self:
             rec.food_total = sum(line.total for line in rec.order_list_ids)
 
-    @api.depends('check_in', 'check_out', 'rooms_id.rent')
+    @api.depends('check_in', 'check_out', 'rooms_id.rent','payment_id.total')
     def _compute_total_rent(self):
         """
                 compute the total rent based on check_in ,check_out and rent of that particular room.
@@ -212,15 +193,22 @@ class HotelAccommodation(models.Model):
                 rec.total_rent = num_days * rec.rooms_id.rent
 
             else:
-                rec.total_rent = rec.rooms_id.rent
+                rec.total_rent = rec.rooms_id.rent or rec.payment_id.total
 
-    @api.depends('food_total')
+    @api.depends('food_total','total_rent')
     def _compute_total_amount(self):
         """
                 Compute the total amount of food and rent
         """
         for rec in self:
             rec.total_amount = rec.total_rent + rec.food_total
+
+
+
+
+
+
+
 
     @api.depends('facility_ids', 'bed')
     def _compute_filtered_rooms(self):
@@ -288,23 +276,22 @@ class HotelAccommodation(models.Model):
             Update the room_rent automatically in payment tab
         """
         for record in self:
-            if record.message_attachment_count == 0:
-                raise ValidationError("Please add attachment")
+            # if record.message_attachment_count == 0:
+            #     raise ValidationError("Please add attachment")
             record.room_status = 'check_in'
             record.rooms_id.state = 'not_available'
             record.check_in = fields.Datetime.now()
+            product = self.env.ref("hotel_management.product_product_room_rent")
 
-            room_rent = {
-                'name': 'Room Rent',
+            self.env['hotel.payment.line'].create({
+                'name': product.name,
                 'description': 'Room Rent',
                 'quantity': 1,
-                'price': self.rooms_id.rent,
-                'total': self.total_rent,
-                'accommodation_id': self.id,
-
-            }
-            value = self.env['hotel.payment.line'].create(room_rent)
-            return value
+                'price':  record.rooms_id.rent or product.list_price,
+                'total': record.rooms_id.rent or product.list_price,
+                'uom_id': product.uom_id.id,
+                'accommodation_id': record.id,
+            })
 
     def action_check_out(self):
         """
@@ -328,6 +315,7 @@ class HotelAccommodation(models.Model):
         invoice = self.env['account.move'].create({
             'partner_id': self.guest_id.id,
             'move_type': 'out_invoice',
+            'accommodation_id': self.id,
             'invoice_line_ids': [
                 (0, 0, {
                     'name': line.name,

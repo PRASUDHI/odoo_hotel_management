@@ -17,6 +17,7 @@
              "data/rooms_data.xml",
              "data/hotel_facility_data.xml",
              "data/food_category_data.xml",
+             "data/product_demo.xml",
              "wizard/accommodation_report_views.xml",
              "views/ir_sequence_data.xml",
              'views/rooms_views.xml',

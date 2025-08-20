@@ -29,9 +29,3 @@ class ResPartner(models.Model):
     is_hotel_guest = fields.Boolean(string="Is Hotel Guest", default=True)
 
 
-
-class AccountMove(models.Model):
-    _inherit = 'account.move'
-
-
-    accommodation_id = fields.Many2one('hotel.accommodation',string="Accommodation",ondelete='cascade')

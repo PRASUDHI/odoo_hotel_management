@@ -10,7 +10,8 @@ class OrderFood(models.Model):
     _description = "Order Food"
     _rec_name = "room_id"
 
-    room_id = fields.Many2one('hotel.accommodation', string="Room", domain="[('room_status', '=', 'check_in')]", ondelete='cascade')
+    room_id = fields.Many2one('hotel.accommodation', string="Room", domain="[('room_status', '=', 'check_in')]",
+                              ondelete='cascade')
     guest_id = fields.Many2one('res.partner', string="Guest", compute="_compute_guest", store=True)
     order_time = fields.Datetime(string="Order Time", default=fields.Datetime.now())
     food_category_ids = fields.Many2many('food.category', string="Category")
@@ -19,11 +20,13 @@ class OrderFood(models.Model):
     food_item_ids = Many2many('hotel.food', string="Food Item", compute="_compute_food_item_ids", store=True,
                               readonly=False)
     food_order_ids = fields.One2many('order.list', 'food_list_id')
-    accommodation_id = fields.Many2one(
-        'hotel.accommodation',
-        string="Accommodation",
-        ondelete='cascade'
-    )
+    food_total = fields.Float(string="Food Total",compute="_compute_food_total",store=True)
+    order_list_ids = fields.One2many('order.list', 'food_list_id', string="Food Orders")
+    order_status = fields.Selection([
+        ('draft', 'Draft'),
+        ('confirm', 'Confirm'),
+        ('cancel', 'Cancel')
+    ], string='Order Status', default='draft')
 
     @api.depends('food_category_ids')
     def _compute_food_item_ids(self):
@@ -47,6 +50,31 @@ class OrderFood(models.Model):
         for record in self:
             record.guest_id = record.room_id.guest_id
 
+    @api.depends('order_list_ids.total')
+    def _compute_food_total(self):
+        """
+        Calculate total food by each order line
+        """
+        for rec in self:
+            rec.food_total = sum(line.total for line in rec.order_list_ids)
+
+    def action_confirm(self):
+        for record in self:
+            record.order_status = 'confirm'
+            print("rerert", record.room_id, record.room_id.id)
+            print("rerert", record.food_total)
+            self.env['hotel.payment.line'].create({
+                'name': "Food Items for Room",
+                'total': record.food_total,
+                'accommodation_id': record.room_id.id,
+            })
+
+    def action_cancel(self):
+        for record in self:
+            record.order_status = 'cancel'
+
+
+
 
 class OrderFoodList(models.Model):
     """
@@ -61,7 +89,7 @@ class OrderFoodList(models.Model):
     price = fields.Monetary(string=" Unit Price")
     total = fields.Float(string="Total", compute="_compute_total", store=True)
     food_list_id = fields.Many2one('order.food')
-    accommodation_id = fields.Many2one('hotel.accommodation', string="Accommodation",ondelete='cascade')
+    accommodation_id = fields.Many2one('hotel.accommodation', string="Accommodation", ondelete='cascade')
     room_id = fields.Many2one('hotel.rooms', string="Room")
     uom_id = fields.Many2one('uom.uom', string="UOM")
     company_id = fields.Many2one(
@@ -72,6 +100,8 @@ class OrderFoodList(models.Model):
         'res.currency', string="Currency", related="company_id.currency_id",
         default=lambda self: self.env.user.company_id.currency_id.id
     )
+
+    # subtotal =fields.Float(string="Total", compute="_compute_subtotal", store=True)
 
     @api.depends('quantity', 'price')
     def _compute_total(self):
