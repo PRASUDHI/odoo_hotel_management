@@ -5,13 +5,12 @@
         <field name="name">order.food.view.form</field>
         <field name="model">order.food</field>
         <field name="arch" type="xml">
-            <form>
+            <form class="o_sale_order">
                 <header>
 
                     <button string="Confirm" name="action_confirm" type="object" invisible="order_status != 'draft'"/>
                     <button name="action_cancel" type="object" string="Cancel" invisible="order_status != 'draft'" />
-                    <field name="order_status" widget="statusbar"
-                           statusbar_visible="draft,confirm,cancel"/>
+                    <field name="order_status" widget="statusbar" statusbar_visible="draft,confirm,cancel"/>
                 </header>
                 <sheet>
                     <group>
@@ -69,8 +68,7 @@
                                 </list>
                             </field>
                             <group class="oe_subtotal_footer " colspan="4">
-                                <field name="food_total" readonly="1" widget="monetary"
-                                       options="{'currency_field': 'currency_id'}"/>
+                                <field name="food_total" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             </group>
                         </page>
                     </notebook>

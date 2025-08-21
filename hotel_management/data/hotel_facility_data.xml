@@ -11,6 +11,5 @@
         <record id="facility_wifi" model="hotel.facility">
             <field name="name">Wifi</field>
         </record>
-
     </data>
 </odoo>

@@ -17,9 +17,6 @@
         <record id="category_five" model="food.category">
             <field name="name">Hot Drinks</field>
         </record>
-        <record id="category_seven" model="food.category">
-            <field name="name">Drinks</field>
-        </record>
         <record id="category_six" model="food.category">
             <field name="name">Cool Drinks</field>
         </record>

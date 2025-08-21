@@ -6,7 +6,7 @@ class HotelPaymentLine(models.Model):
 
     name = fields.Char()
     description = fields.Html()
-    quantity = fields.Integer()
+    quantity = fields.Integer(default=1)
     price = fields.Monetary(string="Price", currency_field="currency_id")
     company_id = fields.Many2one('res.company', store=True, copy=False, string="Company",
                                  default=lambda self: self.env.user.company_id.id)
@@ -20,13 +20,13 @@ class HotelPaymentLine(models.Model):
     total_rent = fields.Float(string="Total Rent")
 
 
-    @api.depends('quantity', 'price')
+    @api.depends( 'price')
     def _compute_total(self):
         """
             Compute total for the rent of room with no.of days
         """
         for rec in self:
-            rec.total = rec.quantity * rec.price
+            rec.total =  rec.price
 
 
 

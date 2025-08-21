@@ -7,7 +7,6 @@
       <field name="subject">We hope you enjoyed your stay!</field>
       <field name="email_from">{{user.email}}</field>
       <field name="email_to">{{ object.guest_id.email }}</field>
-
       <field name="body_html"><![CDATA[
         <p>Hii,</p>
         <p>Thank you for staying with us. We hope you had a pleasant experience.</p>

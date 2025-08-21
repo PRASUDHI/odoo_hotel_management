@@ -195,20 +195,14 @@ class HotelAccommodation(models.Model):
             else:
                 rec.total_rent = rec.rooms_id.rent or rec.payment_id.total
 
-    @api.depends('food_total','total_rent')
+
+    @api.depends( 'payment_line_ids.total')
     def _compute_total_amount(self):
         """
-                Compute the total amount of food and rent
+            Compute the total amount of food, rent, and other payment lines
         """
         for rec in self:
-            rec.total_amount = rec.total_rent + rec.food_total
-
-
-
-
-
-
-
+            rec.total_amount= sum(line.total for line in rec.payment_line_ids)
 
     @api.depends('facility_ids', 'bed')
     def _compute_filtered_rooms(self):
@@ -238,7 +232,6 @@ class HotelAccommodation(models.Model):
                     record.expected_date = (record.check_in + timedelta(days=record.expected_days)).date()
             else:
                 record.expected_date = False
-
 
 
     @api.constrains('number_of_guests')
@@ -321,6 +314,7 @@ class HotelAccommodation(models.Model):
                     'name': line.name,
                     'quantity': line.quantity,
                     'price_unit': line.price,
+                    'price_subtotal':line.total,
                     'product_uom_id': line.uom_id.id,
                 }) for line in self.payment_line_ids],
 

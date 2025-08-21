@@ -9,11 +9,9 @@
                 <header>
 
                     <button name="action_check_in" type="object" string="Check In" invisible="room_status != 'draft'"/>
-                    <button name="action_check_out" type="object" string="Check Out"
-                            invisible="room_status != 'check_in'"/>
+                    <button name="action_check_out" type="object" string="Check Out" invisible="room_status != 'check_in'"/>
                     <button name="action_cancel" type="object" string="Cancel" invisible="room_status != 'draft'"/>
-                    <field name="room_status" widget="statusbar"
-                           statusbar_visible="draft,check_in,check_out,cancel"/>
+                    <field name="room_status" widget="statusbar" statusbar_visible="draft,check_in,check_out,cancel"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -39,12 +37,9 @@
                     <group>
                         <group>
                             <group>
-                                <field name="guest_id" context="{ 'show_address': 1}"
-                                       readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
-                                <field name="number_of_guests"
-                                       readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
-                                <field name="guest_ids" widget="many2many_tags" invisible="1"
-                                       readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                                <field name="guest_id" context="{ 'show_address': 1}" readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                                <field name="number_of_guests" readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                                <field name="guest_ids" widget="many2many_tags" invisible="1" readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
                             </group>
                         </group>
                         <group>
@@ -52,27 +47,19 @@
                             <field name="check_in"/>
                             <field name="check_out"/>
                             <field name="cancel"/>
-                            <field name="expected_days"
-                                   readonly="room_status in ['cancel', 'check_out']"/>
-                            <field name="expected_date"
-                                   decoration-danger="expected_date_color == 'red'"
-                                   decoration-warning="expected_date_color == 'yellow'"
+                            <field name="expected_days" readonly="room_status in ['cancel', 'check_out']"/>
+                            <field name="expected_date" decoration-danger="expected_date_color == 'red'" decoration-warning="expected_date_color == 'yellow'"
                             />
                         </group>
                         <group>
-                            <field name="bed"
-                                   readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
-                            <field name="facility_ids" widget="many2many_tags" options="{'no_create': True}"
-                                   readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
-                            <field name="rooms_id" options="{'no_create': True}"
-                                   domain="[('id', 'in', filtered_room_ids)]"
-                                   readonly="room_status in ['cancel',  'check_out']"/>
+                            <field name="bed" readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                            <field name="facility_ids" widget="many2many_tags" options="{'no_create': True}" readonly="room_status in ['cancel', 'check_in', 'check_out']"/>
+                            <field name="rooms_id" options="{'no_create': True}" domain="[('id', 'in', filtered_room_ids)]" readonly="room_status in ['cancel',  'check_out']"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Information">
-                            <field name="accommodation_ids"
-                                   readonly="room_status in ['cancel', 'check_in', 'check_out']">
+                            <field name="accommodation_ids" readonly="room_status in ['cancel', 'check_in', 'check_out']">
                                 <list editable="bottom">
                                     <field name="guest_id"/>
                                     <field name="age"/>
@@ -95,8 +82,7 @@
                                 </list>
                             </field>
                             <group class="oe_subtotal_footer " colspan="4">
-                                <field name="total_amount" readonly="1" widget="monetary"
-                                       options="{'currency_field': 'currency_id'}"/>
+                                <field name="total_amount" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             </group>
                         </page>
 
@@ -120,9 +106,7 @@
                 <field name="reference_number"/>
                 <field name="guest_id"/>
                 <field name="check_in"/>
-                <field name="expected_date"
-                       decoration-danger="expected_date_color == 'red'"
-                       decoration-warning="expected_date_color == 'yellow'"/>
+                <field name="expected_date" decoration-danger="expected_date_color == 'red'" decoration-warning="expected_date_color == 'yellow'"/>
                 <field name="check_out"/>
             </list>
         </field>
@@ -137,10 +121,8 @@
                 <field name="guest_id" string="Guest"/>
                 <field name="reference_number" string="Sequence"/>
                 <filter string="CheckIn" name="room_status" domain="[('room_status','=','check_in')]"/>
-                <filter string="Current-day checkouts" name="check_out" domain="[('check_out', '&gt;=', datetime.datetime.combine(context_today(),
-                    datetime.time(0,0,0))), ('check_out', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
-                <filter string="Next-day expected checkouts" name="check_out"
-                        domain="[('check_out','&gt;=', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Current-day checkouts" name="check_out" domain="[('check_out', '&gt;=', datetime.datetime.combine(context_today(),datetime.time(0,0,0))), ('check_out', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter string="Next-day expected checkouts" name="check_out" domain="[('check_out','&gt;=', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d'))]"/>
                 <separator/>
                 <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 <group expand="'1" string="Group By">

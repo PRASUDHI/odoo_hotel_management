@@ -5,7 +5,7 @@
         <field name="name">food.category.view.form</field>
         <field name="model">food.category</field>
         <field name="arch" type="xml">
-            <form>
+            <form class="loyalty-rule-form">
                 <sheet>
                     <group>
 

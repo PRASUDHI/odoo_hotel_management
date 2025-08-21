@@ -8,4 +8,5 @@ class FoodCategory(models.Model):
     _name ="food.category"
     _description = "Food Category"
 
+
     name = fields.Char('Name', required=True)

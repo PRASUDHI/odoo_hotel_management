@@ -17,14 +17,15 @@ class AccommodationReportWizard(models.TransientModel):
     guest_id = fields.Many2one("res.partner", string="Guest")
 
     def action_print_report(self):
+        """
+            print the report pdf by filtering from wizard
+        """
         self.ensure_one()
         data = {
             'date_from': self.date_from,
             'date_to': self.date_to,
             'guest_id': self.guest_id.id if self.guest_id else False,
         }
-        # return self.env.ref('hotel_management.hotel_management_report_pdf').report_action(None, data=data)
-
         report_reference = self.env.ref('hotel_management.hotel_management_report_pdf').report_action(None, data=data)
         report_reference.update({'close_on_report_download': True})
         return report_reference
@@ -32,6 +33,9 @@ class AccommodationReportWizard(models.TransientModel):
 
 
     def print_xls_report(self):
+        """
+            print report xlsx from the filtering from wizard
+        """
         data = {
             'date_from': self.date_from,
             'date_to': self.date_to,
@@ -43,26 +47,11 @@ class AccommodationReportWizard(models.TransientModel):
                      'options': json.dumps(data,
                                            default=json_default),
                      'output_format': 'xlsx',
-                     'report_name': 'Sales Excel Report',
+                     'report_name': 'Excel Report',
                      },
             'report_type': 'xlsx',
 
         }
-        # action_window = {
-        #     'type': 'ir.actions.report',
-        #     'model':'report.hotel_management.hotel_management_report_template',
-        #     'options':json.dumps(data,default=json_default),
-        #     'output_format': 'xlsx',
-        #     'report_name': 'Excel Report',
-        #
-        # }
-        #
-        # action_close = {'type': 'ir.actions.act_window_close'}
-        #
-        # return {
-        #     'type': 'ir.actions.act_multi',
-        #     'actions': [action_window, action_close]
-        # }
 
 
 

@@ -59,17 +59,21 @@ class OrderFood(models.Model):
             rec.food_total = sum(line.total for line in rec.order_list_ids)
 
     def action_confirm(self):
+        """
+            when confirming the ordered food the food order lists will move to the payment line tab inside accommodation
+        """
         for record in self:
-            record.order_status = 'confirm'
-            print("rerert", record.room_id, record.room_id.id)
-            print("rerert", record.food_total)
             self.env['hotel.payment.line'].create({
                 'name': "Food Items for Room",
+                'price': record.food_total,
                 'total': record.food_total,
                 'accommodation_id': record.room_id.id,
             })
 
     def action_cancel(self):
+        """
+            cancel the ordered food
+        """
         for record in self:
             record.order_status = 'cancel'
 
