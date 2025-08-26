@@ -30,10 +30,13 @@
              "views/order_food_views.xml",
              "views/res_partner_views.xml",
              'views/hotel_management_menus.xml',
+             'website/hotel_booking_form_template.xml',
+             'website/website_menu.xml',
              "report/hotel_management_report.xml",
              "report/hotel_management_report_template.xml"
              ],
-    'assets': {'web.assets_backend': ['hotel_management/static/src/js/action_manager.js']},
+    'assets': {'web.assets_backend': ['hotel_management/static/src/js/action_manager.js'],
+               'web.assets_frontend':['hotel_management/static/src/js/get_values.js']},
     'application': True,
     'installable': True
 

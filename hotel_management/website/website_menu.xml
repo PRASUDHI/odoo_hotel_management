@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+  <menuitem id="menu_hotel_booking" name="Book Hotel" parent="website.main_menu"/>
+  <record id="website_hotel_booking_page" model="website.menu">
+    <field name="name">Book a Room</field>
+    <field name="url">/hotel/booking</field>
+    <field name="parent_id" ref="website.main_menu"/>
+  </record>
+</odoo>

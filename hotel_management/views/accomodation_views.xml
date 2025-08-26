@@ -43,10 +43,9 @@
                             </group>
                         </group>
                         <group>
-                            <field name="active"/>
-                            <field name="check_in"/>
+                            <field name="active" invisible="1"/>
+                            <field name="check_in" />
                             <field name="check_out"/>
-                            <field name="cancel"/>
                             <field name="expected_days" readonly="room_status in ['cancel', 'check_out']"/>
                             <field name="expected_date" decoration-danger="expected_date_color == 'red'" decoration-warning="expected_date_color == 'yellow'"
                             />
@@ -102,7 +101,7 @@
         <field name="name">hotel.accommodation.view.list</field>
         <field name="model">hotel.accommodation</field>
         <field name="arch" type="xml">
-            <list>
+            <list class="o_sale_order">
                 <field name="reference_number"/>
                 <field name="guest_id"/>
                 <field name="check_in"/>

@@ -17,50 +17,28 @@ class HotelAccommodation(models.Model):
     _order = 'check_in desc'
     _check_company_auto = True
 
-    reference_number = fields.Char(default=lambda self: _('New'), readonly=True, copy=False,
-                                   help="Reference Number of the book")
+    reference_number = fields.Char(default=lambda self: _('New'), readonly=True, copy=False,help="Reference Number of the book")
     guest_id = fields.Many2one('res.partner', string="Guest Name",required=True, domain="[('is_hotel_guest', '=', True)]")
-
     guest_ids = fields.Many2many('res.partner', string='Guests')
     number_of_guests = fields.Integer(string="Number of Guests", default=1)
     check_in = fields.Datetime("Check In")
     check_out = fields.Datetime("Check Out")
     cancel = fields.Datetime("Cancel")
-    address_attach = fields.Binary(
-        attachment=True,
-        string="Address Proof",
-        copy=False,
-
-    )
-    bed = fields.Selection(
-        string='Bed',
-        selection=[('single', 'Single'), ('double', 'Double'), ('dormitory', 'Dormitory')]
-    )
+    address_attach = fields.Binary(attachment=True, string="Address Proof",copy=False)
+    bed = fields.Selection(string='Bed',selection=[('single', 'Single'), ('double', 'Double'), ('dormitory', 'Dormitory')])
     facility_ids = fields.Many2many('hotel.facility', string="Facility")
-    rooms_id = fields.Many2one('hotel.rooms',string="Room")
+    rooms_id = fields.Many2one('hotel.rooms',string="Room",required=True)
     filtered_room_ids = fields.Many2many('hotel.rooms', compute='_compute_filtered_rooms', string="Filtered Rooms")
-    room_status = fields.Selection([
-        ('draft', 'Draft'),
-        ('check_in', 'Check In'),
-        ('check_out', 'Check Out'),
-        ('cancel', 'Cancel')
-    ], string='Room Status', default='draft')
-
+    room_status = fields.Selection([('draft', 'Draft'),('check_in', 'Check In'),('check_out', 'Check Out'),('cancel', 'Cancel')], string='Room Status', default='draft')
     expected_days = fields.Integer(string='Expected Days')
     expected_date = fields.Date(string='Expected CheckOut', compute='_compute_expected_date', store=True, readonly=True)
     age = fields.Integer('Age')
-    gender = fields.Selection(
-        string='Gender',
-        selection=[('male', 'Male'), ('female', 'Female')]
-    )
+    gender = fields.Selection(string='Gender',selection=[('male', 'Male'), ('female', 'Female')])
     invoice_id = fields.Many2one('account.move', string="Invoice")
-    product_id =fields.Many2one('product.product')
-
     payment_state = fields.Selection(related="invoice_id.payment_state", store=True, string="Payment State")
     move_type = fields.Selection(related="invoice_id.move_type", store=True, string="Move Type")
     accommodation_ids = fields.One2many('hotel.guest', 'accommodation_line_id')
     total_rent = fields.Float(string="Total Rent", compute="_compute_total_rent", store=True)
-    food_total = fields.Float(string="Food Total", compute="_compute_food_total", store=True)
     total_amount = fields.Float(string="Total Amount", compute="_compute_total_amount", store=True, currency_field="currency_id")
     company_id = fields.Many2one('res.company', store=True, copy=False, string="Company",default=lambda self: self.env.user.company_id.id)
     currency_id = fields.Many2one('res.currency', string="Currency", related="company_id.currency_id", default=lambda self: self.env.user.company_id.currency_id.id)
@@ -79,6 +57,7 @@ class HotelAccommodation(models.Model):
         """
         for record in self:
             record.invoice_count = self.env['account.move'].search_count([('accommodation_id', '=', record.id)])
+
     def action_view_invoices(self):
         """
             Return the action for the views of the invoices linked to the transaction
@@ -100,9 +79,9 @@ class HotelAccommodation(models.Model):
                 compute the ordered food count with search_count
         """
         for record in self:
-            record.food_order_count = self.env['order.food'].search_count([
-                ('room_id', '=', record.id)
-            ])
+            record.food_order_count = self.env['order.food'].search_count([('room_id', '=', record.id)])
+
+
     def action_view_food_orders(self):
         """
             Return the action for the views of the ordered food linked to the accommodation
@@ -134,7 +113,6 @@ class HotelAccommodation(models.Model):
         """
             send mail to the guest whose check out date is today
         """
-
         today = date.today()
         records = self.search([
             ('check_in', '!=', False),
@@ -153,7 +131,6 @@ class HotelAccommodation(models.Model):
             Yellow: Expected date = current day
             Red: Expected date = current day but not Check-out
         """
-
         today = date.today()
         for rec in self:
             if rec.room_status != 'check_in' or not rec.expected_date:
@@ -165,11 +142,6 @@ class HotelAccommodation(models.Model):
                 rec.expected_date_color = 'red'
             else:
                 rec.expected_date_color = ''
-
-
-
-
-
 
     @api.depends('order_list_ids.total')
     def _compute_food_total(self):
@@ -291,7 +263,6 @@ class HotelAccommodation(models.Model):
             Action for check_out,Record the Datetime in field Checkout
             Calculate the rent based on checkout date,Room state change to available
             Opens the invoice with the room rent and food order list
-
         """
         for record in self:
             record.room_status = 'check_out'
@@ -317,7 +288,6 @@ class HotelAccommodation(models.Model):
                     'price_subtotal':line.total,
                     'product_uom_id': line.uom_id.id,
                 }) for line in self.payment_line_ids],
-
         })
         record.invoice_id = invoice.id
         return {

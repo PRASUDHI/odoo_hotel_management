@@ -45,7 +45,7 @@
         <field name="name">order.food.view.form</field>
         <field name="model">hotel.food</field>
         <field name="arch" type="xml">
-            <form >
+            <form>
                 <sheet>
                     <group>
                         <field name="image" widget="image" class="oe_avatar float-start"

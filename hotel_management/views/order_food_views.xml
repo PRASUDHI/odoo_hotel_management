@@ -7,7 +7,6 @@
         <field name="arch" type="xml">
             <form class="o_sale_order">
                 <header>
-
                     <button string="Confirm" name="action_confirm" type="object" invisible="order_status != 'draft'"/>
                     <button name="action_cancel" type="object" string="Cancel" invisible="order_status != 'draft'" />
                     <field name="order_status" widget="statusbar" statusbar_visible="draft,confirm,cancel"/>
@@ -74,6 +73,17 @@
                     </notebook>
                 </sheet>
             </form>
+        </field>
+    </record>
+    <record id="order_food_view_list" model="ir.ui.view">
+        <field name="name">order.food.view.list</field>
+        <field name="model">order.food</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="room_id"/>
+                <field name="guest_id"/>
+                <field name="order_time"/>
+            </list>
         </field>
     </record>
 

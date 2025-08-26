@@ -18,10 +18,8 @@ class HotelGuests(models.Model):
 
 
 
-
-
-
 class ResPartner(models.Model):
+    """Inherit res.partner object to add  a boolean and sale order lines"""
     _inherit = "res.partner"
 
 

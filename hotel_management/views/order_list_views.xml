@@ -5,7 +5,7 @@
         <field name="name">order.list.view.list</field>
         <field name="model">order.list</field>
         <field name="arch" type="xml">
-            <list>
+            <list class="o_sale_order">
                 <field name="name"/>
                 <field name="quantity"/>
                 <field name="total"/>

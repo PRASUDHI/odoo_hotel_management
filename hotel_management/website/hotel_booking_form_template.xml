@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="hotel_management.template_hotel_booking_form">
+        <t t-call="website.layout">
+            <div id="wrap" class="d-flex flex-wrap align-items-center justify-content-between my-3 ">
+                <section class="container mt-5">
+                    <h2 class="my-0">Book Your Hotel Room</h2>
+                    <form action="/hotel/booking/submit" method="post" class="form-horizontal js_website_submit_form o_wbooth_registration_form mt-1">
+                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom s_website_form_required"
+                             data-type="char" data-name="Field">
+                            <label class="s_website_form_label" style="width: 200px" for="contact1">
+                                <span class="s_website_form_label_content">Name</span>
+                                <span class="s_website_form_mark">*</span>
+                            </label>
+                            <input id="contact1" type="text" class="form-control s_website_form_input" name="name"
+                                   required="" data-fill-with="name"/>
+                        </div>
+                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_required s_website_form_model_required"
+                             data-type="email" data-name="Field">
+                            <label class="s_website_form_label" style="width: 200px" for="contact3">
+                                <span class="s_website_form_label_content">Email</span>
+
+                            </label>
+                            <input id="contact3" type="email" class="form-control s_website_form_input"
+                                   name="email"  data-fill-with="email"/>
+                        </div>
+                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom" data-type="char"
+                             data-name="Field">
+                            <label class="s_website_form_label" style="width: 200px" for="contact2">
+                                <span class="s_website_form_label_content">Phone Number</span>
+                            </label>
+                            <input id="contact2" type="tel" class="form-control s_website_form_input" name="phone"
+                                   data-fill-with="phone"/>
+                        </div>
+                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom">
+                            <label>Bed Type</label>
+
+                            <select name="room_id" class="form-control">
+                                <t t-foreach="rooms" t-as="room">
+                                    <option t-att-value="room.id">
+                                        <t t-esc="room.bed"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label>Facility</label>-->
+
+<!--                            <select name="facility" class="form-control new-get_data" multiple="">-->
+<!--                                <t t-foreach="rooms" t-as="room">-->
+<!--                                    <option t-att-value="room.ids">-->
+<!--                                        <t t-esc="room.facility"/>-->
+<!--                                    </option>-->
+<!--                                    <t t-foreach="env['hotel.facility'].search([])" t-as="facility">-->
+<!--                                        <option t-att-value="facility.id" t-field="facility.name"/>-->
+<!--                                    </t>-->
+<!--                                </t>-->
+<!--                            </select>-->
+<!--                        </div>-->
+                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom">
+                            <label>Select Room</label>
+                            <select name="room_id" class="form-control">
+                                <t t-foreach="rooms" t-as="room">
+                                    <option t-att-value="room.id">
+                                        <t t-esc="room.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom">
+                            <label>Number of Days</label>
+                            <input type="number" name="days" min="1" value="1" class="form-control"/>
+                        </div>
+                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom">
+                            <label>Number of Guests</label>
+                            <input type="number" name="guests" min="1" value="1" class="form-control"/>
+                        </div >
+                        <div style="width: 200px;" class="s_website_form_label">
+                            <button type="submit" class="btn btn-primary mt-3">Book Now</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <template id="hotel_management.template_hotel_booking_success">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="container mt-5">
+                    <h2>Booking Successful</h2>
+                    <p>Thank you <t t-esc=" booking.guest_id.name"/></p>
+                </section>
+            </div>
+        </t>
+    </template>
+
+
+</odoo>

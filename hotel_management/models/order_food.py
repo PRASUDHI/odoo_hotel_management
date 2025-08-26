@@ -63,6 +63,7 @@ class OrderFood(models.Model):
             when confirming the ordered food the food order lists will move to the payment line tab inside accommodation
         """
         for record in self:
+            record.order_status = 'confirm'
             self.env['hotel.payment.line'].create({
                 'name': "Food Items for Room",
                 'price': record.food_total,

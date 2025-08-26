@@ -15,7 +15,6 @@ class HotelPaymentLine(models.Model):
     total = fields.Float(string="Total", compute="_compute_total", store=True)
     food_list_id = fields.Many2one('order.food')
     accommodation_id = fields.Many2one('hotel.accommodation', string="Accommodation",ondelete='cascade')
-    # room_id = fields.Many2one('hotel.rooms', string="Room")
     uom_id = fields.Many2one('uom.uom', string="UOM")
     total_rent = fields.Float(string="Total Rent")
 

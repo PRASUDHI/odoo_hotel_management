@@ -10,16 +10,11 @@ class HotelFood(models.Model):
     item = fields.Char('Food Item')
     food_id = fields.Many2one('food.category', string="Category")
     price = fields.Monetary(string="Price", currency_field="currency_id")
-    company_id = fields.Many2one('res.company', store=True, copy=False, string="Company",
-                                 default=lambda self: self.env.user.company_id.id)
-    currency_id = fields.Many2one('res.currency', string="Currency", related="company_id.currency_id",
-                                  default=lambda self: self.env.user.company_id.currency_id.id)
-
+    company_id = fields.Many2one('res.company', store=True, copy=False, string="Company",default=lambda self: self.env.user.company_id.id)
+    currency_id = fields.Many2one('res.currency', string="Currency", related="company_id.currency_id",default=lambda self: self.env.user.company_id.currency_id.id)
     quantity = fields.Integer('Quantity')
     description = fields.Html(string='Description')
     order_list_id = fields.Many2one('order.list')
-
-
 
     def order_food_action_form(self):
         """
@@ -38,7 +33,7 @@ class HotelFood(models.Model):
 
     def action_create_list(self):
         """
-            Clicking on add_to_list create a list on order_list and payment tab
+            Clicking on add_to_list create a list on order_list
         """
         order_list_id = self.env.context.get('order_list_id')
         room_id = self.env.context.get('room_id')
@@ -53,14 +48,10 @@ class HotelFood(models.Model):
         value = self.env['order.list'].create(vals_list)
         return value
 
-
-
-
     def action_create_product(self):
         """
             create a product in lunch while creating using automation action
         """
-
         self.env['lunch.product'].sudo().create({
             'name': self.name or "Sample",
             'price': self.price,
