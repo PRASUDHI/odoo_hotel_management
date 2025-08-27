@@ -1,0 +1,10 @@
+.hotel-banner {
+    background-image: url('/hotel_management/static/src/images/banner.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 150px;
+    color: white;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}

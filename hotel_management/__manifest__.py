@@ -1,7 +1,7 @@
 {
     'name': "Hotel ERP",
     'version': "18.0.1.1",
-    'depends': ['base', 'mail', 'sale', 'account', 'lunch', 'base_automation'],
+    'depends': ['base', 'mail', 'sale', 'account', 'lunch', 'base_automation','website'],
     'license': "LGPL-3",
     'summary': """An Erp for Hotel Management""",
     'description': """For Hotel Management """,
@@ -30,13 +30,14 @@
              "views/order_food_views.xml",
              "views/res_partner_views.xml",
              'views/hotel_management_menus.xml',
-             'website/hotel_booking_form_template.xml',
+             "website/snippet.xml",
+             'website/hotel_booking_form.xml',
              'website/website_menu.xml',
              "report/hotel_management_report.xml",
              "report/hotel_management_report_template.xml"
              ],
     'assets': {'web.assets_backend': ['hotel_management/static/src/js/action_manager.js'],
-               'web.assets_frontend':['hotel_management/static/src/js/get_values.js']},
+               'web.assets_frontend':['hotel_management/static/src/js/get_values.js',"hotel_management/static/src/css/banner_snippet.css"]},
     'application': True,
     'installable': True
 

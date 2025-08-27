@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="hotel_snippet_banner_template" name="Banner">
+        <section class="oe_structure container-fluid">
+            <div class="row">
+                <section class="col-sm in-1">
+                    <div class="hotel-banner">
+                        <h1>Welcome to Our Hotel</h1>
+                        <p>Experience luxury and comfort with us</p>
+                    </div>
+
+                </section>
+<!--                <section class="col-sm in-2">-->
+<!--                    <h1>Basic Snippet</h1>-->
+<!--                    <p>This is a basic snippet used to demonstrate snippet functionality in Odoo 18.</p>-->
+<!--                </section>-->
+            </div>
+        </section>
+    </template>
+    <template id="hotel_snippet_banner" inherit_id="website.snippets"
+              name="Snippet banner">
+        <xpath expr="//snippets[@id='snippet_groups']"
+               position="inside">
+            <t t-snippet="hotel_management.hotel_snippet_banner_template" t-thumbnail="/hotel_management/static/src/images/thumbnail.jpg"/>
+        </xpath>
+    </template>
+</odoo>
