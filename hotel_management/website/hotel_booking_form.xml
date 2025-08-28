@@ -1,32 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
+    <!-- Hotel Booking Form -->
     <template id="template_hotel_booking_form" name="Hotel Booking Form">
+         <t t-set="logged_partner" t-value="request.env['website.visitor']._get_visitor_from_request().partner_id"/>
+            <t t-set="template_hotel_booking_form_form_values" t-value="{
+                'email': res_company.email,
+                'name': request.params.get('guest_name', ''),
+                'phone': request.params.get('phone', ''),
+
+            }"/>
         <section class="oe_structure container mt-5 hotel-booking-form">
             <div class="row">
                 <div id="wrap" class="d-flex flex-wrap align-items-center justify-content-between my-3 ">
                     <section class="container mt-5">
                         <h2 class="my-0">Book Your Hotel Room</h2>
-                        <form action="/hotel/booking/submit" method="post"
-                              class="form-horizontal js_website_submit_form o_wbooth_registration_form mt-1">
-                            <div class="form-group mb-3"
-                                 data-type="char" data-name="Field">
-                                <label  style="width: 200px" for="contact1">
-                                    <span >Name</span>
-                                    <span >*</span>
-                                </label>
-                                <input id="contact1" type="text" class="form-control " name="name"
-                                       required="" data-fill-with="name"/>
-                            </div>
-                            <div class="form-group mb-3"
-                                 data-type="email" data-name="Field">
-                                <label  style="width: 200px" for="contact3">
-                                    <span >Email</span>
 
+                        <form  action="/hotel/booking/submit" method="post" enctype="multipart/form-data"
+                              class="form-horizontal js_website_submit_form o_wbooth_registration_form mt-1" data-pre-fill="true">
+
+
+                            <div class="mb-3 col-lg-6   "
+                                 data-type="char" data-name="Field">
+                                <label class="" style="width: 200px" for="contact1">
+                                    <span class="">Name</span>
+                                    <span class="">*</span>
                                 </label>
-                                <input id="contact3" type="email" class="form-control "
-                                       name="email" data-fill-with="email"/>
+                                <input id="contact1" type="text" class="form-control " name="guest_name"
+                                       required="" data-fill-with="guest_name"/>
                             </div>
-                            <div class="form-group mb-3" data-type="char"
+                            <div class="mb-3 col-lg-6 " data-type="char"
                                  data-name="Field">
                                 <label style="width: 200px" for="contact2">
                                     <span >Phone Number</span>
@@ -34,95 +36,96 @@
                                 <input id="contact2" type="tel" class="form-control " name="phone"
                                        data-fill-with="phone"/>
                             </div>
-<!--                            <div class="form-group mb-3">-->
-<!--                                <label for="bed">Room Type</label>-->
-<!--                                <select name="bed" class="form-control" >-->
-<!--                                    <option value="single">Single</option>-->
-<!--                                    <option value="double">Double</option>-->
-<!--                                    <option value="dormitory">Dormitory</option>-->
-<!--                                </select>-->
-<!--                            </div>-->
-                            <!--                        <div class="mb-3 col-lg-6 s_website_form_field s_website_form_custom">-->
-                            <!--                            <label>Bed Type</label>-->
-                            <!---->
-                            <!--                            <select name="room_id" class="form-control">-->
-                            <!--                                <t t-foreach="rooms" t-as="room">-->
-                            <!--                                    <option t-att-value="room.id">-->
-                            <!--                                        <t t-esc="room.bed"/>-->
-                            <!--                                    </option>-->
-                            <!--                                </t>-->
-                            <!--                            </select>-->
-                            <!--                        </div>-->
-                            <!--                        <div class="form-group">-->
-                            <!--                            <label>Facility</label>-->
+                            <div class="mb-3 col-lg-6 "
+                                 data-type="email" data-name="Field">
+                                <label class="" style="width: 200px" for="contact3">
+                                    <span class="">Email</span>
+                                    <span class="">*</span>
+                                </label>
+                                <input id="contact3" type="email" class="form-control "
+                                       name="email"  data-fill-with="email"/>
+                            </div>
 
-                            <!--                            <select name="facility" class="form-control new-get_data" multiple="">-->
-                            <!--                                <t t-foreach="rooms" t-as="room">-->
-                            <!--                                    <option t-att-value="room.ids">-->
-                            <!--                                        <t t-esc="room.facility"/>-->
-                            <!--                                    </option>-->
-                            <!--                                    <t t-foreach="env['hotel.facility'].search([])" t-as="facility">-->
-                            <!--                                        <option t-att-value="facility.id" t-field="facility.name"/>-->
-                            <!--                                    </t>-->
-                            <!--                                </t>-->
-                            <!--                            </select>-->
-                            <!--                        </div>-->
-<!--                            <div class="form-group mb-3">-->
-<!--                                <label>Select Room</label>-->
-<!--                                <select name="room_id" class="form-control">-->
-<!--                                    <t t-foreach="rooms" t-as="room">-->
-<!--                                        <option t-att-value="room.id">-->
-<!--                                            <t t-esc="room.name"/>-->
-<!--                                        </option>-->
-<!--                                    </t>-->
-<!--                                </select>-->
+                            <!-- Email -->
+<!--                            <div class="form-group mb-3" data-type="email" data-name="Field">-->
+<!--                                <label style="width: 200px" for="email">-->
+<!--                                    <span>Email</span>-->
+<!--                                </label>-->
+<!--                                <input id="email" type="email" class="form-control"-->
+<!--                                       name="email" placeholder="Enter your email"/>-->
 <!--                            </div>-->
 
-                            <div class="form-group mb-3">
+<!--                            &lt;!&ndash; Phone &ndash;&gt;-->
+<!--                            <div class="form-group mb-3" data-type="char" data-name="Field">-->
+<!--                                <label style="width: 200px" for="phone">-->
+<!--                                    <span>Phone Number</span>-->
+<!--                                </label>-->
+<!--                                <input id="phone" type="tel" class="form-control"-->
+<!--                                       name="phone" placeholder="Enter your phone number"/>-->
+<!--                            </div>-->
+
+                            <!-- Room Type -->
+                            <div class="mb-3 col-lg-6 ">
+                                <label for="bed">Room Type</label>
+                                <select name="bed" class="form-control">
+                                    <option value="single">Single</option>
+                                    <option value="double">Double</option>
+                                    <option value="dormitory">Dormitory</option>
+                                </select>
+                            </div>
+
+                            <!-- Number of Days -->
+                            <div class="mb-3 col-lg-6 ">
                                 <label>Number of Days</label>
-                                <input type="number" name="days" min="1" value="1" class="form-control"/>
+                                <input type="number" name="days" min="1" value="1"
+                                       class="form-control"/>
                             </div>
-                            <div class="form-group mb-3">
+
+                            <!-- Number of Guests -->
+                            <div class="mb-3 col-lg-6 ">
                                 <label>Number of Guests</label>
-                                <input type="number" name="guests" min="1" value="1" class="form-control"/>
+                                <input type="number" name="guests" min="1" value="1"
+                                       class="form-control"/>
                             </div>
+
+                            <!-- Submit -->
                             <div style="width: 200px;" class="form-group mb-3">
                                 <button type="submit" class="btn btn-primary mt-3">Book Now</button>
                             </div>
+
                         </form>
                     </section>
                 </div>
-
             </div>
-
         </section>
     </template>
 
-        <template id="hotel_management.template_hotel_booking_success">
-            <t t-call="website.layout">
-                <div id="wrap" class="oe_structure oe_empty">
-                    <section class="container mt-5">
-                        <h2>Booking Successful</h2>
-                        <p>Thank you <t t-esc=" booking.guest_id.name"/></p>
-                    </section>
-                </div>
-            </t>
-        </template>
-    <template id="hotel_booking_snippet_form" inherit_id="website.snippets"
-              name="Snippet banner">
-        <xpath expr="//snippets[@id='snippet_groups']"
-               position="inside">
-            <t t-snippet="hotel_management.template_hotel_booking_form"/>
-        </xpath>
-    </template>
-    <template id="hotel_booking_thank_you" name="Hotel Booking Thank You">
+    <!-- Booking Success -->
+    <template id="hotel_management.template_hotel_booking_success">
         <t t-call="website.layout">
-            <div id="wrap" class="oe_structure container mt-5 text-center">
-                <h2>Thank you for booking with us!</h2>
-                <p>We will confirm your accommodation shortly.</p>
+            <div id="wrap" class="oe_structure oe_empty">
+                <section class="container mt-5">
+                    <h2>Booking Successful</h2>
+                    <p>Thank you </p>
+                </section>
             </div>
         </t>
     </template>
 
+    <!-- Add form as snippet -->
+    <template id="hotel_booking_snippet_form" inherit_id="website.snippets" name="Snippet banner">
+        <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+            <t t-snippet="hotel_management.template_hotel_booking_form"/>
+        </xpath>
+    </template>
 
+    <!-- Thank You Page -->
+<!--    <template id="hotel_booking_thank_you" name="Hotel Booking Thank You">-->
+<!--        <t t-call="website.layout">-->
+<!--            <div id="wrap" class="oe_structure container mt-5 text-center">-->
+<!--                <h2>Thank you for booking with us!</h2>-->
+<!--                <p>We will confirm your accommodation shortly.</p>-->
+<!--            </div>-->
+<!--        </t>-->
+<!--    </template>-->
 </odoo>
