@@ -184,7 +184,7 @@ class HotelAccommodation(models.Model):
         for rec in self:
             domain = []
             if rec.facility_ids:
-                domain.append(('facility', 'in', rec.facility_ids.ids))
+                domain.append(('facility_ids', 'in', rec.facility_ids.ids))
             if rec.bed:
                 domain.append(('bed', '=', rec.bed))
             domain.append(('state', '=', 'available'))

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <record id="view_report_accommodation_form" model="ir.ui.view">
         <field name="name">accommodation.report.view.form</field>
         <field name="model">accommodation.report.wizard</field>

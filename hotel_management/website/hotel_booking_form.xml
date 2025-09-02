@@ -22,16 +22,14 @@
                                     <span class="">Name</span>
                                     <span class="">*</span>
                                 </label>
-                                <input id="contact1" type="text" class="form-control " name="guest_name"
-                                       required="" data-fill-with="guest_name" t-att-value="logged_partner.name or ''"/>
+                                <input id="contact1" type="text" class="form-control " name="guest_name" required="" data-fill-with="guest_name" t-att-value="logged_partner.name or ''"/>
                             </div>
                             <div class="mb-3 col-lg-6 " data-type="char"
                                  data-name="Field">
                                 <label style="width: 200px" for="contact2">
                                     <span >Phone Number</span>
                                 </label>
-                                <input id="contact2" type="tel" class="form-control " name="phone"
-                                       data-fill-with="phone" t-att-value="logged_partner.phone or ''"/>
+                                <input id="contact2" type="tel" class="form-control " name="phone" data-fill-with="phone" t-att-value="logged_partner.phone or ''"/>
                             </div>
                             <div class="mb-3 col-lg-6 "
                                  data-type="email" data-name="Field">
@@ -39,8 +37,7 @@
                                     <span class="">Email</span>
                                     <span class="">*</span>
                                 </label>
-                                <input id="contact3" type="email" class="form-control "
-                                       name="email"  data-fill-with="email" t-att-value="logged_partner.email or ''"/>
+                                <input id="contact3" type="email" class="form-control " name="email"  data-fill-with="email" t-att-value="logged_partner.email or ''"/>
                             </div>
                             <div class="mb-3 col-lg-6 ">
                                 <label for="bed">Room Type</label>
@@ -50,33 +47,41 @@
                                     <option value="dormitory">Dormitory</option>
                                 </select>
                             </div>
-<!--                            <div class="mb-3 col-lg-6 ">-->
-<!--                                <label for="facility">Facility</label>-->
-<!--                                <select name="facility" class="form-control">-->
-<!--                                    <option value="ac">AC</option>-->
-<!--                                    <option value="wifi">Wifi</option>-->
-<!--                                    <option value="fridge">Fridge</option>-->
-<!--                                </select>-->
-<!--                            </div>-->
-                            <div>
-                                <select name="type"
-                                        t-attf-class="form-control select2_box"
-                                        required="" multiple="" style="width:300px;">
-                                    <optgroup label="Group1">
-                                        <option value="support">Support</option>
-                                        <option value="feedback">Feedback</option>
-                                        <option value="question">Question</option>
-                                    </optgroup>
-                                    <optgroup label="Group2">
-                                        <option value="complaint">Complaint</option>
-                                        <option value="suggestion">Suggestion</option>
-                                    </optgroup>
-                                </select>
+                            <div class="mb-3 col-lg-6">
+                                <label>Select Facilities</label>
+                                <div>
+                                    <t t-foreach="request.env['hotel.facility'].sudo().search([]) " t-as="facility">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="facility_ids"
+                                                   t-att-value="facility.id"/>
+                                            <label class="form-check-label">
+                                                <t t-esc="facility.name"/>
+                                            </label>
+                                        </div>
+                                    </t>
+                                </div>
                             </div>
                             <div class="mb-3 col-lg-6">
+                                <label>Select Room</label>
+                                <select name="room_id" class="form-control js-room-select">
+                                    <option value="">-- Select Room --</option>
+                                </select>
+                            </div>
+
+<!--                            <div class="mb-3 col-lg-6  ">-->
+<!--                                <label>Select Room</label>-->
+<!--                                <select name="room_id" class="form-control">-->
+<!--                                    <t t-foreach="request.env['hotel.rooms'].sudo().search([('state', '=', 'available')])"-->
+<!--                                       t-as="room">-->
+<!--                                        <option t-att-value="room.id">-->
+<!--                                            <t t-esc="room.name"/>-->
+<!--                                        </option>-->
+<!--                                    </t>-->
+<!--                                </select>-->
+<!--                            </div>-->
+                            <div class="mb-3 col-lg-6">
                                 <label for="booking_time">Booking Time</label>
-                                <input id="booking_time" type="datetime-local" name="booking_time" class="form-control"
-                                       required="required"/>
+                                <input id="booking_time" type="datetime-local" name="booking_time" class="form-control"/>
                             </div>
                             <div class="mb-3 col-lg-6 ">
                                 <label>Number of Days</label>
@@ -98,7 +103,7 @@
             <div id="wrap" class="oe_structure oe_empty">
                 <section class="container mt-5">
                     <h2>Booking Successful</h2>
-                    <p>Thank you </p>
+                    <p>Thank you !!</p>
                 </section>
             </div>
         </t>

@@ -21,7 +21,7 @@ class HotelRooms(models.Model):
                                  default=lambda self: self.env.user.company_id.id)
     currency_id = fields.Many2one('res.currency', string="Currency", related="company_id.currency_id",
                                   default=lambda self: self.env.user.company_id.currency_id.id)
-    facility = fields.Many2many('hotel.facility')
+    facility_ids = fields.Many2many('hotel.facility')
     state = fields.Selection(
         string='State',
         selection=[('available', 'Available'), ('not_available', 'Not Available')]

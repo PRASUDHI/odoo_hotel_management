@@ -14,12 +14,11 @@
                                     <field name="name"/>
                                 </h1>
                             </div>
-
                             <field name="bed"/>
                             <field name="available_beds" invisible="bed != 'dormitory'"/>
                             <field name="rent" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="facility" widget="many2many_tags"/>
+                            <field name="facility_ids" widget="many2many_tags"/>
                             <field name="state"/>
                         </group>
                     </group>

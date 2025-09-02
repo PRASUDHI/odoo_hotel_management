@@ -37,7 +37,10 @@
              "report/hotel_management_report_template.xml"
              ],
     'assets': {'web.assets_backend': ['hotel_management/static/src/js/action_manager.js'],
-               'web.assets_frontend':['hotel_management/static/src/js/get_values.js',"hotel_management/static/src/css/banner_snippet.css"]},
+               'web.assets_frontend':["hotel_management/static/src/js/hotel_booking.js",
+                                      'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css',
+                                        'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js',
+                                         "hotel_management/static/src/css/banner_snippet.css"]},
     'application': True,
     'installable': True
 
