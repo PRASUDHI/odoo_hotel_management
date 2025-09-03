@@ -10,10 +10,13 @@ class WebsiteHotelBooking(http.Controller):
         if bed:
             domain.append(('bed', '=', bed))
         if facility_ids:
+            facility_ids = [int(fid) for fid in facility_ids]  # convert to int
             domain.append(('facility_ids', 'in', facility_ids))
 
         rooms = request.env['hotel.rooms'].sudo().search(domain)
-        return [{'id': r.id, 'name': r.name} for r in rooms]
+        print("Domain",domain)
+        return [{'id': room.id, 'name': room.name} for room in rooms]
+
     @http.route(['/hotel/booking/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=False)
     def hotel_booking_submit(self, **post):
         print("POST DATA:", post)
@@ -22,7 +25,11 @@ class WebsiteHotelBooking(http.Controller):
         booking_time_str = post.get('booking_time')
         booking_time = datetime.strptime(booking_time_str, "%Y-%m-%dT%H:%M") if booking_time_str else False
         partner = request.env.user.partner_id
+
+
         facility_ids = request.httprequest.form.getlist('facility_ids')
+        facility_ids = [int(fid) for fid in facility_ids if fid]
+
         domain = [('state', '=', 'available')]
         if bed:
             domain.append(('bed', '=', bed))
@@ -31,6 +38,7 @@ class WebsiteHotelBooking(http.Controller):
 
         rooms = request.env['hotel.rooms'].sudo().search(domain)
         print("plolp", rooms, domain)
+
         room_id = int(post.get('room_id')) if post.get('room_id') else False
 
         booking = request.env['hotel.accommodation'].sudo().create({
@@ -38,7 +46,7 @@ class WebsiteHotelBooking(http.Controller):
             'bed': bed,
             'expected_days': days,
             'booking_time': booking_time,
-            'facility_ids': facility_ids,
+            'facility_ids': [(6, 0, facility_ids)],
             'rooms_id': room_id
         })
         print(booking)
@@ -47,3 +55,4 @@ class WebsiteHotelBooking(http.Controller):
             'partner': partner,
             'rooms': rooms,
         })
+

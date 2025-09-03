@@ -39,6 +39,17 @@
                                 </label>
                                 <input id="contact3" type="email" class="form-control " name="email"  data-fill-with="email" t-att-value="logged_partner.email or ''"/>
                             </div>
+<!--                            <div class="mb-3 col-lg-6 ">-->
+<!--                                <label for="bed">Bed Type</label>-->
+
+<!--                                <select name="room_id" class="form-control">-->
+<!--                                    <t t-foreach="request.env['hotel.rooms'].sudo().search([('state', '=', 'available')])" t-as="room">-->
+<!--                                        <option t-att-value="room.id">-->
+<!--                                            <t t-esc="room.bed"/>-->
+<!--                                        </option>-->
+<!--                                    </t>-->
+<!--                                </select>-->
+<!--                            </div>-->
                             <div class="mb-3 col-lg-6 ">
                                 <label for="bed">Room Type</label>
                                 <select name="bed" class="form-control">
@@ -47,6 +58,32 @@
                                     <option value="dormitory">Dormitory</option>
                                 </select>
                             </div>
+                             <!-- Tags Dropdown and Selected Tags Inline -->
+<!--                            <div class="mb-3 d-flex s_website_form_field s_website_form_custom" data-type="many2many"-->
+<!--                                 data-name="Tag"-->
+<!--                                 style="border: 2px solid #00000000; padding: 8px; border-radius: 8px;">-->
+<!--                                <div class="col-6">-->
+<!--                                    <label class="s_website_form_label" for="contact_tag">-->
+<!--                                        <span class="s_website_form_label_content">Tags</span>-->
+<!--                                    </label>-->
+<!--                                    &lt;!&ndash; Tags Dropdown &ndash;&gt;-->
+<!--                                    <select id="contact_tag"-->
+<!--                                            class="js-example-basic-multiple form-control s_website_form_input"-->
+<!--                                            name="tag"-->
+<!--                                            multiple="multiple">-->
+<!--                                        <t t-foreach="tags" t-as="tag">-->
+<!--                                            <option t-att-value="tag.id">-->
+<!--                                                <t t-esc="tag.name"/>-->
+<!--                                            </option>-->
+<!--                                        </t>-->
+<!--                                    </select>-->
+<!--                                </div>-->
+<!--                                &lt;!&ndash; Display Selected Tags as Pills Inline &ndash;&gt;-->
+<!--                                <div id="tag-pills-container" class="tag-pill-container col-6" style="display: flex; flex-wrap: wrap; gap: 6px;-->
+<!--                margin-top: 24px; border: 1px solid #212529; padding: 6px; border-radius: 8px; margin-left: 7px;">-->
+<!--                                    &lt;!&ndash; Pills for selected tags will appear here &ndash;&gt;-->
+<!--                                </div>-->
+<!--                            </div>-->
                             <div class="mb-3 col-lg-6">
                                 <label>Select Facilities</label>
                                 <div>
