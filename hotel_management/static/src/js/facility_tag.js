@@ -1,58 +1,79 @@
 ///** @odoo-module **/
+//
 //import publicWidget from "@web/legacy/js/public/public_widget";
-//const TagPillsWidget = publicWidget.Widget.extend({
-//   selector: '#tag-pills-container',
-//   events: { 'click .remove-tag-btn': '_onRemoveTagClick' },
-//   init(parent, options) {
-//       this._super(...arguments);
-//       this.selectedTags = [];
-//   },
-//   start() {
-//       this.tagDropdown = this.el.querySelector('#contact_tag');
-//       if (!this.tagDropdown) return this._super(...arguments);
-//       [...this.tagDropdown.options].forEach(opt => {
-//           if (opt.selected) this.selectedTags.push({ id: opt.value, name: opt.text.trim() });
-//       });
-//       this.tagDropdown.addEventListener('click', e => this._onTagClick(e));
-//       this._updateTags();
-//       return this._super(...arguments);
-//   },
-//   _onTagClick(e) {
-//       if (e.target.tagName !== 'OPTION') return;
-//       const { value: id, textContent } = e.target;
-//       const name = textContent.trim();
-//       const exists = this.selectedTags.find(t => t.id === id);
-//       this.selectedTags = exists
-//           ? this.selectedTags.filter(t => t.id !== id)
-//           : [...this.selectedTags, { id, name }];
-//       e.target.selected = !exists;
-//       this._updateTags();
-//   },
-//   _onRemoveTagClick(e) {
-//       const id = e.currentTarget.dataset.tagId;
-//       this.selectedTags = this.selectedTags.filter(t => t.id !== id);
-//       const opt = this.tagDropdown?.querySelector(`option[value="${id}"]`);
-//       if (opt) opt.selected = false;
-//       this._updateTags();
-//   },
-//   _updateTags() {
-//       this.el.innerHTML = '';
-//       this.selectedTags.forEach(({ id, name }) => {
-//           const pill = Object.assign(document.createElement('div'), {
-//               className: 'tag-pill',
-//               style: 'background:#e6f0ff;color:#000;padding:4px 8px;border-radius:16px;font-size:14px;margin:2px;display:inline-flex;align-items:center;',
-//               textContent: name,
-//           });
-//           const btn = Object.assign(document.createElement('div'), {
-//               className: 'remove-tag-btn',
-//               dataset: { tagId: id },
-//               textContent: '×',
-//               style: 'background:#6c757d;color:#fff;width:18px;height:18px;display:flex;align-items:center; justify-content:center;cursor:pointer;font-size:12px;font-weight:bold;margin-left:6px;border-radius:50%;'
-//           });
-//           pill.appendChild(btn);
-//           this.el.appendChild(pill);
-//       });
-//   },
+//
+//const FacilityPillsWidget = publicWidget.Widget.extend({
+//    selector: '#facility-pills-container',
+//    events: { 'click .remove-facility-btn': '_onRemoveFacilityClick' },
+//
+//    init() {
+//        this._super(...arguments);
+//        this.selectedFacilities = [];
+//    },
+//
+//    start() {
+//        this.facilityDropdown = this.el.closest('.s_website_form_field')
+//            ?.querySelector('#facility_ids');
+//        if (!this.facilityDropdown) return this._super(...arguments);
+//
+//        [...this.facilityDropdown.options].forEach(opt => {
+//            if (opt.selected) {
+//                this.selectedFacilities.push({ id: opt.value, name: opt.text.trim() });
+//            }
+//        });
+//
+//        this.facilityDropdown.addEventListener('click', e => this._onFacilityClick(e));
+//        this._updateFacilities();
+//
+//        return this._super(...arguments);
+//    },
+//
+//    _onFacilityClick(e) {
+//        if (e.target.tagName !== 'OPTION') return;
+//
+//        const { value: id, textContent } = e.target;
+//        const name = textContent.trim();
+//        const exists = this.selectedFacilities.find(f => f.id === id);
+//
+//        this.selectedFacilities = exists
+//            ? this.selectedFacilities.filter(f => f.id !== id)
+//            : [...this.selectedFacilities, { id, name }];
+//
+//        e.target.selected = !exists;
+//        this._updateFacilities();
+//    },
+//
+//    _onRemoveFacilityClick(e) {
+//        const id = e.currentTarget.dataset.facilityId;
+//        this.selectedFacilities = this.selectedFacilities.filter(f => f.id !== id);
+//
+//        const opt = this.facilityDropdown?.querySelector(`option[value="${id}"]`);
+//        if (opt) opt.selected = false;
+//
+//        this._updateFacilities();
+//    },
+//
+//    _updateFacilities() {
+//        this.el.innerHTML = '';
+//        this.selectedFacilities.forEach(({ id, name }) => {
+//            const pill = Object.assign(document.createElement('div'), {
+//                className: 'facility-pill',
+//                style: 'background:#e6f0ff;color:#000;padding:4px 8px;border-radius:16px;font-size:14px;margin:2px;display:inline-flex;align-items:center;',
+//                textContent: name,
+//            });
+//
+//            const btn = Object.assign(document.createElement('div'), {
+//                className: 'remove-facility-btn',
+//                dataset: { facilityId: id },
+//                textContent: '×',
+//                style: 'background:#000;color:#000;width:18px;height:18px;display:flex;align-items:center; justify-content:center;cursor:pointer;font-size:12px;font-weight:bold;margin-left:6px;border-radius:50%;'
+//            });
+//
+//            pill.appendChild(btn);
+//            this.el.appendChild(pill);
+//        });
+//    },
 //});
-//publicWidget.registry.TagPills = TagPillsWidget;
-//export default TagPillsWidget;
+//
+//publicWidget.registry.FacilityPills = FacilityPillsWidget;
+//export default FacilityPillsWidget;

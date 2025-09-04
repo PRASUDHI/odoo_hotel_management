@@ -37,7 +37,7 @@
              "report/hotel_management_report_template.xml"
              ],
     'assets': {'web.assets_backend': ['hotel_management/static/src/js/action_manager.js'],
-               'web.assets_frontend':["hotel_management/static/src/js/hotel_booking.js","hotel_management/static/src/css/banner_snippet.css"]},
+               'web.assets_frontend':["hotel_management/static/src/js/hotel_booking.js","hotel_management/static/src/js/facility_tag.js","hotel_management/static/src/css/banner_snippet.css"]},
     'application': True,
     'installable': True
 

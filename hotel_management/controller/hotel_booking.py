@@ -5,16 +5,18 @@ from odoo.http import request
 
 class WebsiteHotelBooking(http.Controller):
     @http.route(['/hotel/get_rooms'], type='json', auth="public", website=True)
-    def get_rooms(self, bed=None, facility_ids=None, **kw):
+    def get_rooms(self, bed=None, facility_ids=None):
+        print("jhjghf")
         domain = [('state', '=', 'available')]
         if bed:
             domain.append(('bed', '=', bed))
         if facility_ids:
-            facility_ids = [int(fid) for fid in facility_ids]  # convert to int
+            facility_ids = [int(fid) for fid in facility_ids]
             domain.append(('facility_ids', 'in', facility_ids))
 
         rooms = request.env['hotel.rooms'].sudo().search(domain)
         print("Domain",domain)
+        print("rooms",rooms)
         return [{'id': room.id, 'name': room.name} for room in rooms]
 
     @http.route(['/hotel/booking/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=False)
@@ -46,7 +48,7 @@ class WebsiteHotelBooking(http.Controller):
             'bed': bed,
             'expected_days': days,
             'booking_time': booking_time,
-            'facility_ids': [(6, 0, facility_ids)],
+            'facility_ids':facility_ids,
             'rooms_id': room_id
         })
         print(booking)
