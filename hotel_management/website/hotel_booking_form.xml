@@ -2,133 +2,86 @@
 <odoo>
     <!-- Hotel Booking Form -->
     <template id="template_hotel_booking_form" name="Hotel Booking Form">
-         <t t-set="logged_partner" t-value="request.env['website.visitor']._get_visitor_from_request().partner_id"/>
-            <t t-set="template_hotel_booking_form_form_values" t-value="{
+        <t t-set="logged_partner" t-value="request.env['website.visitor']._get_visitor_from_request().partner_id"/>
+        <t t-set="template_hotel_booking_form_form_values" t-value="{
                 'email': res_company.email,
                 'name': request.params.get('guest_name', ''),
                 'phone': request.params.get('phone', ''),
 
             }"/>
         <section class="oe_structure container mt-5 hotel-booking-form">
-            <div class="row">
-                <div id="wrap" class="d-flex flex-wrap align-items-center justify-content-between my-3 ">
+            <div class="row justify-content-center">
+                <div id="wrap" class="d-flex flex-wrap align-items-center justify-content-between my-3">
                     <section class="container mt-5">
-                        <h2 class="my-0">Book Your Hotel Room</h2>
-                        <form  action="/hotel/booking/submit" method="post" enctype="multipart/form-data"
-                              class="form-horizontal js_website_submit_form o_wbooth_registration_form mt-1" data-pre-fill="true">
-                            <div class="mb-3 col-lg-6   "
-                                 data-type="char" data-name="Field">
-                                <label class="" style="width: 200px" for="contact1">
-                                    <span class="">Name</span>
-                                    <span class="">*</span>
-                                </label>
-                                <input id="contact1" type="text" class="form-control " name="guest_name" required="" data-fill-with="guest_name" t-att-value="logged_partner.name or ''"/>
-                            </div>
-                            <div class="mb-3 col-lg-6 " data-type="char"
-                                 data-name="Field">
-                                <label style="width: 200px" for="contact2">
-                                    <span >Phone Number</span>
-                                </label>
-                                <input id="contact2" type="tel" class="form-control " name="phone" data-fill-with="phone" t-att-value="logged_partner.phone or ''"/>
-                            </div>
-                            <div class="mb-3 col-lg-6 "
-                                 data-type="email" data-name="Field">
-                                <label class="" style="width: 200px" for="contact3">
-                                    <span class="">Email</span>
-                                    <span class="">*</span>
-                                </label>
-                                <input id="contact3" type="email" class="form-control " name="email"  data-fill-with="email" t-att-value="logged_partner.email or ''"/>
-                            </div>
-<!--                            <div class="mb-3 col-lg-6 ">-->
-<!--                                <label for="bed">Bed Type</label>-->
-
-<!--                                <select name="room_id" class="form-control">-->
-<!--                                    <t t-foreach="request.env['hotel.rooms'].sudo().search([('state', '=', 'available')])" t-as="room">-->
-<!--                                        <option t-att-value="room.id">-->
-<!--                                            <t t-esc="room.bed"/>-->
-<!--                                        </option>-->
-<!--                                    </t>-->
-<!--                                </select>-->
-<!--                            </div>-->
-                            <div class="mb-3 col-lg-6 ">
-                                <label for="bed">Room Type</label>
-                                <select name="bed" class="form-control">
-                                    <option value="single">Single</option>
-                                    <option value="double">Double</option>
-                                    <option value="dormitory">Dormitory</option>
-                                </select>
-                            </div>
-<!--                            <t t-set="facilities" t-value="request.env['hotel.facility'].sudo().search([])"/>-->
-
-<!--                            <div class="mb-3 d-flex "-->
-<!--                                 data-type="many2many" data-name="Facilities"-->
-<!--                                 style="border: 2px solid #00000000; padding: 8px; border-radius: 8px;">-->
-<!--                                <div class="col-6">-->
-<!--                                    <label class="" for="facility_ids">-->
-<!--                                        <span class="">Facilities</span>-->
-<!--                                    </label>-->
-<!--                                    <select id="facility_ids"-->
-<!--                                            class="js-facility-multiple form-control "-->
-<!--                                            name="facility_ids"-->
-<!--                                            multiple="multiple">-->
-<!--                                        <t t-foreach="facilities" t-as="fac">-->
-<!--                                            <option t-att-value="fac.id">-->
-<!--                                                <t t-esc="fac.name"/>-->
-<!--                                            </option>-->
-<!--                                        </t>-->
-<!--                                    </select>-->
-<!--                                </div>-->
-
-<!--                                &lt;!&ndash; Pills &ndash;&gt;-->
-<!--                                <div id="facility-pills-container"-->
-<!--                                     class="facility-pill-container col-6"-->
-<!--                                     style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 24px;-->
-<!--              border: 1px solid #212529; padding: 6px; border-radius: 8px; margin-left: 7px;">-->
-<!--                                </div>-->
-<!--                            </div>-->
-                            <div class="mb-3 col-lg-6">
-                                <label>Select Facilities</label>
-                                <div>
-                                    <t t-foreach="request.env['hotel.facility'].sudo().search([]) " t-as="facility">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="facility_ids"
-                                                   t-att-value="facility.id"/>
-                                            <label class="form-check-label">
-                                                <t t-esc="facility.name"/>
-                                            </label>
-                                        </div>
-                                    </t>
+                        <h2 class="text-center mb-4 text-primary">Book Your Hotel Room</h2>
+                        <form action="/hotel/booking/submit" method="post" enctype="multipart/form-data"
+                              class="form-horizontal js_website_submit_form o_wbooth_registration_form"
+                              data-pre-fill="true">
+                            <div class="row">
+                                <div class="mb-3 col-lg-6">
+                                    <label class="form-label">Name
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" name="guest_name"
+                                           t-att-value="logged_partner.name or ''"/>
+                                </div>
+                                <div class="mb-3 col-lg-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email"
+                                           t-att-value="logged_partner.email or ''"/>
                                 </div>
                             </div>
-                            <div class="mb-3 col-lg-6">
-                                <label>Select Room</label>
-                                <select name="room_id" class="form-control js-room-select">
-                                    <option value="">-- Select Room --</option>
-                                </select>
+                            <br/>
+                            <div class="row">
+                                <div class="mb-3 col-lg-6 ">
+                                    <label for="bed">Room Type</label>
+                                    <select name="bed" class="form-control">
+                                        <option value="single">Single</option>
+                                        <option value="double">Double</option>
+                                        <option value="dormitory">Dormitory</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3 col-lg-6 ">
+                                    <label>Number of Guests</label>
+                                    <input type="number" name="guests" min="1" value="1" class="form-control"/>
+                                </div>
+
+
+                                <div class="mb-3">
+                                    <label class="form-label ">Select Facilities</label>
+                                    <div class="form-check form-check-inline"
+                                         t-foreach="request.env['hotel.facility'].sudo().search([])" t-as="facility">
+                                        <input class="form-check-input" type="checkbox" name="facility_ids"
+                                               t-att-value="facility.id"/>
+                                        <label class="form-check-label">
+                                            <t t-esc="facility.name"/>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3 col-lg-6">
+                                    <label for="booking_time">Booking Time</label>
+                                    <input id="booking_time" type="datetime-local" name="booking_time"
+                                           class="form-control"/>
+                                </div>
+                                <!--                                <div class="mb-3 col-lg-6">-->
+                                <!--                                    <label>Select Room</label>-->
+                                <!--                                    <select name="room_id" class="form-control js-room-select">-->
+                                <!--                                        <option value="">&#45;&#45; Select Room &#45;&#45;</option>-->
+                                <!--                                    </select>-->
+                                <!--                                </div>-->
+
+                                <div class="mb-3 col-lg-6 ">
+                                    <label>Number of Days</label>
+                                    <input type="number" name="days" min="1" value="1"
+                                           class="form-control"/>
+                                </div>
                             </div>
 
-<!--                            <div class="mb-3 col-lg-6  ">-->
-<!--                                <label>Select Room</label>-->
-<!--                                <select name="room_id" class="form-control">-->
-<!--                                    <t t-foreach="request.env['hotel.rooms'].sudo().search([('state', '=', 'available')])"-->
-<!--                                       t-as="room">-->
-<!--                                        <option t-att-value="room.id">-->
-<!--                                            <t t-esc="room.name"/>-->
-<!--                                        </option>-->
-<!--                                    </t>-->
-<!--                                </select>-->
-<!--                            </div>-->
-                            <div class="mb-3 col-lg-6">
-                                <label for="booking_time">Booking Time</label>
-                                <input id="booking_time" type="datetime-local" name="booking_time" class="form-control"/>
-                            </div>
-                            <div class="mb-3 col-lg-6 ">
-                                <label>Number of Days</label>
-                                <input type="number" name="days" min="1" value="1"
-                                       class="form-control"/>
-                            </div>
-                            <div style="width: 200px;" class="form-group mb-3">
-                                <button type="submit" class="btn btn-primary mt-3">Book Now</button>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow">
+                                    Book Now
+                                </button>
                             </div>
                         </form>
                     </section>
@@ -150,7 +103,8 @@
 
     <template id="hotel_booking_snippet_form" inherit_id="website.snippets" name="Snippet banner">
         <xpath expr="//snippets[@id='snippet_groups']" position="inside">
-            <t t-snippet="hotel_management.template_hotel_booking_form" t-thumbnail="/hotel_management/static/src/images/website_form.svg"/>
+            <t t-snippet="hotel_management.template_hotel_booking_form"
+               t-thumbnail="/hotel_management/static/src/images/website_form.svg"/>
         </xpath>
     </template>
 

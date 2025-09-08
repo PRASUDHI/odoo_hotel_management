@@ -45,6 +45,7 @@
                         <group>
                             <field name="active" invisible="1"/>
                             <field name="check_in" />
+                            <field name="booking_time"/>
                             <field name="check_out"/>
                             <field name="expected_days" readonly="room_status in ['cancel', 'check_out']"/>
                             <field name="expected_date" decoration-danger="expected_date_color == 'red'" decoration-warning="expected_date_color == 'yellow'"

@@ -49,7 +49,7 @@ class HotelAccommodation(models.Model):
     active = fields.Boolean(default=True)
     invoice_count = fields.Integer(string="Invoices", compute="_compute_invoice_count", default=0)
     food_order_count = fields.Integer(string="Food Orders", compute="_compute_food_order_count", default=0)
-    booking_time = fields.Datetime(string="Booking Time", required=True)
+    booking_time = fields.Datetime(string="Booking Time")
 
     def _compute_invoice_count(self):
         """

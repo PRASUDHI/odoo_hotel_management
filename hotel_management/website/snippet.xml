@@ -8,12 +8,7 @@
                         <h1>Welcome to Our Hotel</h1>
                         <p>Experience luxury and comfort with us</p>
                     </div>
-
                 </section>
-<!--                <section class="col-sm in-2">-->
-<!--                    <h1>Basic Snippet</h1>-->
-<!--                    <p>This is a basic snippet used to demonstrate snippet functionality in Odoo 18.</p>-->
-<!--                </section>-->
             </div>
         </section>
     </template>
