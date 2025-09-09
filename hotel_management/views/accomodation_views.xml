@@ -7,7 +7,6 @@
         <field name="arch" type="xml">
             <form class="o_sale_order">
                 <header>
-
                     <button name="action_check_in" type="object" string="Check In" invisible="room_status != 'draft'"/>
                     <button name="action_check_out" type="object" string="Check Out" invisible="room_status != 'check_in'"/>
                     <button name="action_cancel" type="object" string="Cancel" invisible="room_status != 'draft'"/>
@@ -15,8 +14,6 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-
-
                         <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o" invisible="invoice_count == 0">
                             <field name="invoice_count" widget="statinfo" string="Invoices"/>
                         </button>
@@ -24,9 +21,7 @@
                         <button name="action_view_food_orders" type="object" class="oe_stat_button" icon="fa-shopping-basket" invisible="room_status != 'check_in'">
                             <field name="food_order_count" widget="statinfo" string="Food Orders"/>
                         </button>
-
                     </div>
-
                     <widget name="web_ribbon" title="Paid"
                             invisible="payment_state != 'paid' or move_type not in ('out_invoice')"/>
                     <div class="oe_title">
@@ -44,8 +39,9 @@
                         </group>
                         <group>
                             <field name="active" invisible="1"/>
-                            <field name="check_in" />
+                            <field name="check_in"/>
                             <field name="booking_time"/>
+                            <field name="booking_method" widget="badge" decoration-success="booking_method == 'Website'" decoration-warning="booking_method == 'Manual'"/>
                             <field name="check_out"/>
                             <field name="expected_days" readonly="room_status in ['cancel', 'check_out']"/>
                             <field name="expected_date" decoration-danger="expected_date_color == 'red'" decoration-warning="expected_date_color == 'yellow'"
@@ -68,11 +64,7 @@
                             </field>
                         </page>
                         <page string="Payment Lines">
-
-
                             <field name="payment_line_ids" context="{'active_id':id,}">
-
-
                                 <list editable="bottom">
                                     <field name="name"/>
                                     <field name="quantity"/>
@@ -85,7 +77,6 @@
                                 <field name="total_amount" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             </group>
                         </page>
-
                     </notebook>
                 </sheet>
                 <chatter>
@@ -108,6 +99,7 @@
                 <field name="check_in"/>
                 <field name="expected_date" decoration-danger="expected_date_color == 'red'" decoration-warning="expected_date_color == 'yellow'"/>
                 <field name="check_out"/>
+                <field name="booking_method" widget="badge" decoration-success="booking_method == 'Website'" decoration-warning="booking_method == 'Manual'"/>
             </list>
         </field>
     </record>
@@ -121,6 +113,7 @@
                 <field name="guest_id" string="Guest"/>
                 <field name="reference_number" string="Sequence"/>
                 <filter string="CheckIn" name="room_status" domain="[('room_status','=','check_in')]"/>
+                <filter string=" Website Booking" name="booking_method" domain="[('booking_method','=','Website')]" />
                 <filter string="Current-day checkouts" name="check_out" domain="[('check_out', '&gt;=', datetime.datetime.combine(context_today(),datetime.time(0,0,0))), ('check_out', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
                 <filter string="Next-day expected checkouts" name="check_out" domain="[('check_out','&gt;=', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d'))]"/>
                 <separator/>

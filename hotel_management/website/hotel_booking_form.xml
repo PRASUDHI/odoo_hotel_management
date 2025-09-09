@@ -63,18 +63,55 @@
                                     <input id="booking_time" type="datetime-local" name="booking_time"
                                            class="form-control"/>
                                 </div>
-                                <!--                                <div class="mb-3 col-lg-6">-->
-                                <!--                                    <label>Select Room</label>-->
-                                <!--                                    <select name="room_id" class="form-control js-room-select">-->
-                                <!--                                        <option value="">&#45;&#45; Select Room &#45;&#45;</option>-->
-                                <!--                                    </select>-->
-                                <!--                                </div>-->
 
                                 <div class="mb-3 col-lg-6 ">
                                     <label>Number of Days</label>
                                     <input type="number" name="days" min="1" value="1"
                                            class="form-control"/>
                                 </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Guest Details</label>
+                                <table id="guest_table" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Guest Name</th>
+                                            <th>Age</th>
+                                            <th>Gender</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="guest_line" id="table_line">
+                                            <td>
+                                                <select name="guest_id" class="form-control addGuest">
+                                                    <option value="">Select Guest</option>
+                                                    <t t-foreach="request.env['res.partner'].sudo().search([('is_hotel_guest','=',True)])"
+                                                       t-as="guest">
+                                                        <option t-att-value="guest.id">
+                                                            <t t-esc="guest.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="guest_age" class="form-control addAge"/>
+                                            </td>
+                                            <td>
+                                                <select name="guest_gender" class="form-control addGender">
+                                                    <option value="">Select</option>
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger remove_guest">Remove
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-secondary add_guest">Add Guest</button>
                             </div>
 
 
