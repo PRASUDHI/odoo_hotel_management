@@ -32,12 +32,18 @@
              'views/hotel_management_menus.xml',
              "website/snippet.xml",
              'website/hotel_booking_form.xml',
+             'website/hotel_rooms_snippet.xml',
+             'website/hotel_gallery_snippet.xml',
              'website/website_menu.xml',
              "report/hotel_management_report.xml",
              "report/hotel_management_report_template.xml"
              ],
     'assets': {'web.assets_backend': ['hotel_management/static/src/js/action_manager.js'],
-               'web.assets_frontend':["hotel_management/static/src/js/hotel_booking.js","hotel_management/static/src/js/no_of_guest.js","hotel_management/static/src/css/banner_snippet.css"]},
+               'web.assets_frontend':["hotel_management/static/src/js/hotel_booking.js",
+                                      "hotel_management/static/src/js/no_of_guest.js",
+                                      "hotel_management/static/src/css/banner_snippet.css",
+                                      "hotel_management/static/src/xml/hotel_room_template.xml",
+                                      "hotel_management/static/src/js/hotel_room_snippet.js"]},
     'application': True,
     'installable': True
 

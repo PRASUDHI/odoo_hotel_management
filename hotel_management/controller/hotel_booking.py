@@ -5,6 +5,34 @@ from odoo.http import request
 
 
 class WebsiteHotelBooking(http.Controller):
+    @http.route('/get_hotel_gallery', auth="public", type='json', website=True)
+    def get_hotel_gallery(self):
+        images = request.env['ir.attachment'].sudo().search_read(
+            [('res_model', '=', 'hotel.rooms'), ('mimetype', 'like', 'image%')],
+            fields=['id', 'name'],
+            limit=5
+        )
+
+        for img in images:
+            img['url'] = f"/web/image/{img['id']}"
+
+        return {"images": images}
+
+    @http.route('/get_hotel_rooms', auth="public", type='json', website=True)
+    def get_hotel_rooms(self):
+        rooms = request.env['hotel.rooms'].sudo().search_read(
+            fields=['name', 'bed', 'rent', 'facility_ids', 'state', ]
+        )
+        for room in rooms:
+            facilities = request.env['hotel.facility'].sudo().browse(room['facility_ids'])
+            room['facilities'] = [f.name for f in facilities]
+
+            # if room.get('image_1920'):
+            #     room['image'] = f"data:image/png;base64,{room['image_1920']}"
+            # else:
+            #     room['image'] = "/hotel_management/static/src/images/default_room.png"
+        return {"rooms": rooms}
+
     @http.route(['/hotel/booking/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=False)
     def hotel_booking_submit(self, **post):
         print("POST DATA:", post)
@@ -24,8 +52,6 @@ class WebsiteHotelBooking(http.Controller):
                     'gender': g.get('gender'),
                 }))
 
-        print("DEBUG >>> Guest Lines Raw:", guest_lines)
-        print("DEBUG >>> Guest Values Prepared:", guest_vals)
 
         facility_ids = request.httprequest.form.getlist('facility_ids')
         facility_ids = [int(fid) for fid in facility_ids if fid]
@@ -40,8 +66,7 @@ class WebsiteHotelBooking(http.Controller):
             'accommodation_ids': guest_vals,
             'booking_method': "Website"
         })
-        print("DEBUG >>> Booking Created:", booking)
-        print("DEBUG >>> Booking Guest Lines:", booking.accommodation_ids)
+
         return request.render("hotel_management.template_hotel_booking_success", {
             'booking': booking,
             'partner': partner,

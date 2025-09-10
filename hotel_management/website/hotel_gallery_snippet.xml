@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Gallery Placeholder -->
+    <template id="hotel_gallery_snippet" name="Hotel Gallery Snippet">
+        <section class="hotel-gallery-section">
+            <div class="container">
+                <div class="alert alert-info">
+                    <h4>Hotel Gallery snippet will load here... Please save to view it.</h4>
+                </div>
+            </div>
+        </section>
+    </template>
+
+
+    <template id="hotel_gallery_snippet_register" inherit_id="website.snippets"
+              name="Hotel Gallery Snippet Register">
+        <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+            <t t-snippet="hotel_management.hotel_gallery_snippet"
+               t-thumbnail="/hotel_management/static/src/img/snippets/gallery_snippet.png"/>
+        </xpath>
+    </template>
+</odoo>

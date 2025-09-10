@@ -1,0 +1,28 @@
+<!--<?xml version="1.0" encoding="UTF-8" ?>-->
+<!--<templates xml:space="preserve">-->
+<!--    <t t-name="hotel_management.hotel_gallery_template">-->
+<!--        <section class="hotel-gallery-section my-5">-->
+<!--            <div class="container">-->
+<!--                <h2 class="text-center mb-4 text-primary">Hotel Gallery</h2>-->
+<!--                <div id="hotelGalleryCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">-->
+<!--                    <div class="carousel-inner">-->
+<!--                        <t t-foreach="result.images" t-as="img" t-key="img.id" t-foreach-index="idx">-->
+<!--                            <div t-attf-class="carousel-item #{'active' if idx == 0 else ''}">-->
+<!--                                <img t-att-src="img.url"-->
+<!--                                     class="d-block w-100 rounded-3"-->
+<!--                                     style="max-height:500px; object-fit:cover;"-->
+<!--                                     t-att-alt="img.name"/>-->
+<!--                            </div>-->
+<!--                        </t>-->
+<!--                    </div>-->
+<!--                    <button class="carousel-control-prev" type="button" data-bs-target="#hotelGalleryCarousel" data-bs-slide="prev">-->
+<!--                        <span class="carousel-control-prev-icon"></span>-->
+<!--                    </button>-->
+<!--                    <button class="carousel-control-next" type="button" data-bs-target="#hotelGalleryCarousel" data-bs-slide="next">-->
+<!--                        <span class="carousel-control-next-icon"></span>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </section>-->
+<!--    </t>-->
+<!--</templates>-->

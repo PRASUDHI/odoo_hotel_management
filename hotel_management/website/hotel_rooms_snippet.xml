@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="hotel_room_snippet" name="Hotel Room Snippet">
+        <section class="hotel-room-section">
+            <div class="container">
+                <div class="alert alert-info">
+                    <h4>Hotel Room snippet</h4>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="hotel_room_snippet_register" inherit_id="website.snippets"
+              name="Hotel Room Snippet Register">
+        <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+            <t t-snippet="hotel_management.hotel_room_snippet"
+               t-thumbnail="/hotel_management/static/src/images/gallery_snippet.svg"/>
+        </xpath>
+    </template>
+
+
+</odoo>

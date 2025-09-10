@@ -26,3 +26,4 @@ class HotelRooms(models.Model):
         string='State',
         selection=[('available', 'Available'), ('not_available', 'Not Available')]
     )
+    # image_1920 = fields.Image(default="")
