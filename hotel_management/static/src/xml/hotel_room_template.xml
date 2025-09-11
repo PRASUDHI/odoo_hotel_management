@@ -16,27 +16,13 @@
                                          loading="lazy"/>
                                 </t>
                                 <t t-else="">
-                                    <img src="/hotel_management/static/src/images/default_room.png"
+                                    <img src=""
                                          class="card-img-top rounded-top"
                                          alt="Default Room"
                                          style="height: 200px; object-fit: cover;"
                                          loading="lazy"/>
                                 </t>
                                 <div class="card-body">
-<!--                                    <div class="img_wrapper">-->
-<!--                                        <t t-if="category.image_1920">-->
-<!--                                            <img t-att-src="'data:image/png;base64,' + category.image_1920"-->
-<!--                                                 class="img img-fluid rotate-center"-->
-<!--                                                 t-att-alt="category.name or 'Category Image'"-->
-<!--                                                 loading="lazy"/>-->
-<!--                                        </t>-->
-<!--                                        <t t-else="">-->
-<!--                                            <img src="hotel_management/static/src/images/website_form.svg"-->
-<!--                                                 class="img img-fluid rotate-center"-->
-<!--                                                 alt="Default Category Image"-->
-<!--                                                 loading="lazy"/>-->
-<!--                                        </t>-->
-<!--                                    </div>-->
                                     <h5 class="card-title text-dark"><t t-esc="room.name"/></h5>
                                     <p><strong>Bed:</strong> <t t-esc="room.bed"/></p>
                                     <p><strong>Rate:</strong> ₹<t t-esc="room.rent"/></p>

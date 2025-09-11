@@ -26,4 +26,4 @@ class HotelRooms(models.Model):
         string='State',
         selection=[('available', 'Available'), ('not_available', 'Not Available')]
     )
-    # image_1920 = fields.Image(default="")
+    image_1920 = fields.Image("Room Image", max_width=1920, max_height=1920)

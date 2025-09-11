@@ -1,28 +1,45 @@
-<!--<?xml version="1.0" encoding="UTF-8" ?>-->
-<!--<templates xml:space="preserve">-->
-<!--    <t t-name="hotel_management.hotel_gallery_template">-->
-<!--        <section class="hotel-gallery-section my-5">-->
-<!--            <div class="container">-->
-<!--                <h2 class="text-center mb-4 text-primary">Hotel Gallery</h2>-->
-<!--                <div id="hotelGalleryCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">-->
-<!--                    <div class="carousel-inner">-->
-<!--                        <t t-foreach="result.images" t-as="img" t-key="img.id" t-foreach-index="idx">-->
-<!--                            <div t-attf-class="carousel-item #{'active' if idx == 0 else ''}">-->
-<!--                                <img t-att-src="img.url"-->
-<!--                                     class="d-block w-100 rounded-3"-->
-<!--                                     style="max-height:500px; object-fit:cover;"-->
-<!--                                     t-att-alt="img.name"/>-->
-<!--                            </div>-->
-<!--                        </t>-->
-<!--                    </div>-->
-<!--                    <button class="carousel-control-prev" type="button" data-bs-target="#hotelGalleryCarousel" data-bs-slide="prev">-->
-<!--                        <span class="carousel-control-prev-icon"></span>-->
-<!--                    </button>-->
-<!--                    <button class="carousel-control-next" type="button" data-bs-target="#hotelGalleryCarousel" data-bs-slide="next">-->
-<!--                        <span class="carousel-control-next-icon"></span>-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </section>-->
-<!--    </t>-->
-<!--</templates>-->
+<?xml version="1.0" encoding="utf-8" ?>
+<templates xml:space="preserve">
+    <t t-name="hotel_management.hotel_gallery_snippet_template">
+        <section class="hotel-gallery-section my-5">
+            <div class="container">
+                <h2 class="text-center mb-4 text-primary">Hotel Gallery</h2>
+
+                <div id="hotelGalleryCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <t t-foreach="chunkData" t-key="img" t-as="chunk" t-foreach-index="i">
+                            <div t-att-class="i == 0 ? 'carousel-item active' : 'carousel-item'">
+                                <div class="row">
+                                    <t t-foreach="chunk" t-as="img" t-key="img.id">
+                                        <div class="col-md-2 mb-4">
+                                            <div class="card">
+                                                <t t-if="img.image">
+                                                    <img t-att-src="img.image"
+                                                         class="card-img-top rounded"
+                                                         t-att-alt="img.name"
+                                                         style="height: 150px; object-fit: cover;"/>
+                                                </t>
+                                                <div class="card-body p-2">
+                                                    <p class="card-text text-center"><t t-esc="img.name"/></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <button class="carousel-control-prev" type="button" data-bs-target="#hotelGalleryCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#hotelGalleryCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </t>
+</templates>

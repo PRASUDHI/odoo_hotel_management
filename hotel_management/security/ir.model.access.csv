@@ -18,6 +18,8 @@ hotel_management.access_hotel_food_reception,access_hotel_food,hotel_management.
 
 
 hotel_management.access_food_category,access_food_category,hotel_management.model_food_category,base.group_user,1,1,1,1
+hotel_management.access_hotel_gallery,access_hotel_gallery,hotel_management.model_hotel_gallery,base.group_user,1,1,1,1
+
 
 
 hotel_management.access_hotel_accommodation_reception,access_hotel_accommodation,hotel_management.model_hotel_accommodation,hotel_management.group_hotel_reception,1,1,1,0

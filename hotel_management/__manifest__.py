@@ -24,6 +24,7 @@
              "views/facility_views.xml",
              "views/hotel_food_views.xml",
              "views/food_category_views.xml",
+             "views/hotel_gallery.xml",
              "views/accomodation_views.xml",
              "views/hotel_guest_views.xml",
              "views/sale_order_lines_views.xml",
@@ -43,7 +44,10 @@
                                       "hotel_management/static/src/js/no_of_guest.js",
                                       "hotel_management/static/src/css/banner_snippet.css",
                                       "hotel_management/static/src/xml/hotel_room_template.xml",
-                                      "hotel_management/static/src/js/hotel_room_snippet.js"]},
+                                      "hotel_management/static/src/js/hotel_room_snippet.js",
+                                      "hotel_management/static/src/xml/hotel_gallery_template.xml",
+                                      "hotel_management/static/src/js/hotel_gallery_snippet.js",
+                                      ]},
     'application': True,
     'installable': True
 

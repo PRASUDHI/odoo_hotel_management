@@ -4,33 +4,34 @@ from odoo import http
 from odoo.http import request
 
 
-class WebsiteHotelBooking(http.Controller):
-    @http.route('/get_hotel_gallery', auth="public", type='json', website=True)
+class WebsiteHotelGallery(http.Controller):
+
+    @http.route('/get_hotel_gallery', type='json', auth="public", website=True)
     def get_hotel_gallery(self):
-        images = request.env['ir.attachment'].sudo().search_read(
-            [('res_model', '=', 'hotel.rooms'), ('mimetype', 'like', 'image%')],
-            fields=['id', 'name'],
-            limit=5
-        )
-
+        images = request.env['hotel.gallery'].sudo().search([])
+        result = []
         for img in images:
-            img['url'] = f"/web/image/{img['id']}"
+            result.append({
+                "id": img.id,
+                "name": img.name,
+                "image": f"/web/image/hotel.gallery/{img.id}/image_1920" if img.image_1920 else "",
+            })
+        return {"gallery": result}
 
-        return {"images": images}
+
 
     @http.route('/get_hotel_rooms', auth="public", type='json', website=True)
     def get_hotel_rooms(self):
         rooms = request.env['hotel.rooms'].sudo().search_read(
-            fields=['name', 'bed', 'rent', 'facility_ids', 'state', ]
+            fields=['name', 'bed', 'rent', 'facility_ids', 'state', 'image_1920']
         )
         for room in rooms:
             facilities = request.env['hotel.facility'].sudo().browse(room['facility_ids'])
             room['facilities'] = [f.name for f in facilities]
-
-            # if room.get('image_1920'):
-            #     room['image'] = f"data:image/png;base64,{room['image_1920']}"
-            # else:
-            #     room['image'] = "/hotel_management/static/src/images/default_room.png"
+            if room.get('image_1920'):
+                room['image'] = f"/web/image/hotel.rooms/{room['id']}/image_1920"
+            else:
+                room['image'] = ""
         return {"rooms": rooms}
 
     @http.route(['/hotel/booking/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=False)
