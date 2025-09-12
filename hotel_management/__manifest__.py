@@ -1,7 +1,7 @@
 {
     'name': "Hotel ERP",
     'version': "18.0.1.1",
-    'depends': ['base', 'mail', 'sale', 'account', 'lunch', 'base_automation','website'],
+    'depends': ['base', 'mail', 'sale', 'account', 'lunch', 'base_automation','website', 'website_payment'],
     'license': "LGPL-3",
     'summary': """An Erp for Hotel Management""",
     'description': """For Hotel Management """,
@@ -14,8 +14,8 @@
              'security/ir.model.access.csv',
              "data/ir_cron_data.xml",
              "data/mail_template_checkout.xml",
-             "data/rooms_data.xml",
              "data/hotel_facility_data.xml",
+             "data/rooms_data.xml",
              "data/food_category_data.xml",
              "data/product_demo.xml",
              "wizard/accommodation_report_views.xml",

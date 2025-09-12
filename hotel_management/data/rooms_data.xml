@@ -16,7 +16,7 @@
             <field name="bed">single</field>
             <field name="available_beds">2</field>
             <field name="rent">100</field>
-            <field name="facility" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
+            <field name="facility_ids" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
             <field name="state">available</field>
         </record>
         <record id="room_two" model="hotel.rooms">
@@ -24,7 +24,7 @@
             <field name="bed">single</field>
             <field name="available_beds">1</field>
             <field name="rent">100</field>
-            <field name="facility" eval="[(6, 0, [ ref('facility_wifi')])]"/>
+            <field name="facility_ids" eval="[(6, 0, [ ref('facility_wifi')])]"/>
             <field name="state">available</field>
         </record>
         <record id="room_three" model="hotel.rooms">
@@ -32,7 +32,7 @@
             <field name="bed">single</field>
             <field name="available_beds">5</field>
             <field name="rent">400</field>
-            <field name="facility" eval="[(6, 0, [ ref('facility_ac')])]"/>
+            <field name="facility_ids" eval="[(6, 0, [ ref('facility_ac')])]"/>
             <field name="state">not_available</field>
         </record>
         <record id="room_four" model="hotel.rooms">
@@ -40,7 +40,7 @@
             <field name="bed">dormitory</field>
             <field name="available_beds">5</field>
             <field name="rent">500</field>
-            <field name="facility" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
+            <field name="facility_ids" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
             <field name="state">available</field>
         </record>
         <record id="room_five" model="hotel.rooms">
@@ -48,7 +48,7 @@
             <field name="bed">double</field>
             <field name="available_beds">4</field>
             <field name="rent">460</field>
-            <field name="facility" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
+            <field name="facility_ids" eval="[(6, 0, [ref('facility_ac'), ref('facility_wifi')])]"/>
             <field name="state">available</field>
         </record>
     </data>

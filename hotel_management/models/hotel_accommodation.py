@@ -27,7 +27,7 @@ class HotelAccommodation(models.Model):
     address_attach = fields.Binary(attachment=True, string="Address Proof",copy=False)
     bed = fields.Selection(string='Bed',selection=[('single', 'Single'), ('double', 'Double'), ('dormitory', 'Dormitory')])
     facility_ids = fields.Many2many('hotel.facility', string="Facility")
-    rooms_id = fields.Many2one('hotel.rooms',string="Room",required=True)
+    rooms_id = fields.Many2one('hotel.rooms',string="Room")
     filtered_room_ids = fields.Many2many('hotel.rooms', compute='_compute_filtered_rooms', string="Filtered Rooms")
     room_status = fields.Selection([('draft', 'Draft'),('check_in', 'Check In'),('check_out', 'Check Out'),('cancel', 'Cancel')], string='Room Status', default='draft')
     expected_days = fields.Integer(string='Expected Days')

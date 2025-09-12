@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <template id="hotel_gallery_snippet" name="Hotel Gallery Snippet">
+    <template id="hotel_gallery_snippet_template" name="Hotel Gallery Snippet">
         <section class="hotel-gallery-snippet my-5">
             <div class="container">
                 <h2 class="text-center mb-4 text-primary">Hotel Gallery</h2>
-                <div id="hotel_gallery_snippet_wrapper">
-                    <div class="alert alert-info">Gallery will load here...</div>
-                </div>
+                <div class="text-center text-muted">Loading gallery...</div>
             </div>
         </section>
     </template>
 
-    <template id="hotel_gallery_snippet_register" inherit_id="website.snippets">
+    <template id="hotel_gallery_snippet_block" inherit_id="website.snippets" name="Hotel Gallery Snippet">
         <xpath expr="//snippets[@id='snippet_groups']" position="inside">
-            <t t-snippet="hotel_management.hotel_gallery_snippet"/>
+            <t t-snippet="hotel_management.hotel_gallery_snippet_template"/>
         </xpath>
     </template>
 </odoo>

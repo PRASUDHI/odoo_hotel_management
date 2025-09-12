@@ -1,23 +1,35 @@
 import json
+import time
 from datetime import datetime
 from odoo import http
 from odoo.http import request
 
 
 class WebsiteHotelGallery(http.Controller):
-
-    @http.route('/get_hotel_gallery', type='json', auth="public", website=True)
+    @http.route('/hotel_gallery_data', type='json', auth="public", website=True)
     def get_hotel_gallery(self):
-        images = request.env['hotel.gallery'].sudo().search([])
-        result = []
-        for img in images:
-            result.append({
-                "id": img.id,
-                "name": img.name,
-                "image": f"/web/image/hotel.gallery/{img.id}/image_1920" if img.image_1920 else "",
-            })
-        return {"gallery": result}
+        images = request.env['hotel.gallery'].sudo().search_read(
+            [], ['name', 'image_1920']
+        )
+        unique_id = "hg-%d" % int(time.time() * 1000)
+        return {
+            'images': images,
+            'unique_id': unique_id
+        }
 
+
+    # @http.route('/get_hotel_gallery', type='json', auth="public", website=True)
+    # def get_hotel_gallery(self):
+    #     images = request.env['hotel.gallery'].sudo().search([])
+    #     print(images[0].read())
+    #     result = []
+    #     for img in images:
+    #         result.append({
+    #             "id": img.id,
+    #             "name": img.name,
+    #             "image": f"/web/image/hotel.gallery/{img.id}/image_1920" if img.image_1920 else "/hotel_management/static/src/images/banner.jpg",
+    #         })
+    #     return {"gallery": result}
 
 
     @http.route('/get_hotel_rooms', auth="public", type='json', website=True)
