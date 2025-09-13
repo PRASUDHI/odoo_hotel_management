@@ -10,12 +10,15 @@
                                 <div class="row justify-content-center">
                                     <t t-foreach="chunk" t-as="img" t-key="img['id']">
                                         <div class="col-md-2 mb-3">
-                                            <div class="card ">
+                                            <div class="card d-flex flex-column justify-content-between" style="border-radius:12px; overflow:hidden; height:230px;">
                                                 <img class="card-img-top"
                                                      t-attf-src="data:image/jpeg;base64,{{img['image_1920'] or ''}}"
-                                                     t-att-alt="img['name']"/>
-                                                <div class="card-body text-center">
-                                                    <p class="fw-bold text-primary mb-0" t-esc="img['name']"/>
+                                                     t-att-alt="img['name']"
+                                                     style="height:160px; width:100%; object-fit:cover;"/>
+                                                <div class="card-body text-center" style="padding:8px; flex-grow:1;">
+                                                    <p class="fw-bold text-primary mb-0"
+                                                       style="font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                                                       t-esc="img['name']"/>
                                                 </div>
                                             </div>
                                         </div>

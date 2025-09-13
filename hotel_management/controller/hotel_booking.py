@@ -17,21 +17,6 @@ class WebsiteHotelGallery(http.Controller):
             'unique_id': unique_id
         }
 
-
-    # @http.route('/get_hotel_gallery', type='json', auth="public", website=True)
-    # def get_hotel_gallery(self):
-    #     images = request.env['hotel.gallery'].sudo().search([])
-    #     print(images[0].read())
-    #     result = []
-    #     for img in images:
-    #         result.append({
-    #             "id": img.id,
-    #             "name": img.name,
-    #             "image": f"/web/image/hotel.gallery/{img.id}/image_1920" if img.image_1920 else "/hotel_management/static/src/images/banner.jpg",
-    #         })
-    #     return {"gallery": result}
-
-
     @http.route('/get_hotel_rooms', auth="public", type='json', website=True)
     def get_hotel_rooms(self):
         rooms = request.env['hotel.rooms'].sudo().search_read(
@@ -40,10 +25,21 @@ class WebsiteHotelGallery(http.Controller):
         for room in rooms:
             facilities = request.env['hotel.facility'].sudo().browse(room['facility_ids'])
             room['facilities'] = [f.name for f in facilities]
-            if room.get('image_1920'):
-                room['image'] = f"/web/image/hotel.rooms/{room['id']}/image_1920"
-            else:
-                room['image'] = ""
+
+            if room.get('bed'):
+                try:
+                    bed = request.env['hotel.rooms'].sudo().browse(int(room['bed']))
+                    room['bed'] = bed.name if bed.exists() else ""
+                except Exception:
+                    field = request.env['hotel.rooms']._fields['bed']
+                    room['bed'] = dict(field.selection).get(room['bed'], room['bed'])
+
+            if room.get('state'):
+                field = request.env['hotel.rooms']._fields['state']
+                room['state'] = dict(field.selection).get(room['state'], room['state'])
+
+            room['image'] = f"/web/image/hotel.rooms/{room['id']}/image_1920" if room.get('image_1920') else ""
+
         return {"rooms": rooms}
 
     @http.route(['/hotel/booking/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=False)
