@@ -79,6 +79,5 @@ class WebsiteHotelGallery(http.Controller):
         return request.render("hotel_management.template_hotel_booking_success", {
             'booking': booking,
             'partner': partner,
-            # 'rooms': rooms,
         })
 

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="portal_food_list_template" name="Portal Food List">
+        <t t-call="portal.portal_layout">
+            <div class="container my-4">
+                <h2 class="mb-4">Order Food</h2>
+                <div class="row">
+                    <t t-foreach="foods" t-as="food">
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <div class="card h-100 shadow-sm food-card"
+                                 data-bs-toggle="modal"
+                                 t-att-data-bs-target="'#foodModal_' + str(food.id)">
+                                <img t-att-src="'/web/image/hotel.food/' + str(food.id) + '/image'"
+                                     class="card-img-top"
+                                     style="height:200px; object-fit:cover"/>
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <t t-esc="food.name"/>
+                                    </h5>
+                                    <p class="fw-bold text-primary mb-0">
+                                        $
+                                        <t t-esc="food.price"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" t-att-id="'foodModal_' + str(food.id)" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">
+                                            <t t-esc="food.name"/>
+                                        </h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <img t-att-src="'/web/image/hotel.food/' + str(food.id) + '/image'"
+                                                     class="img-fluid rounded"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h2 class="modal-title">
+                                                    <t t-esc="food.name"/>
+                                                </h2>
+                                                <p>
+                                                    <t t-raw="food.description"/>
+                                                </p>
+                                                <p class="fw-bold text-primary fs-5">
+                                                    $
+                                                    <t t-esc="food.price"/>
+                                                </p>
+                                                <form action="/my/food/add_to_list" method="POST">
+                                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                    <input type="hidden" name="food_id" t-att-value="food.id"/>
+                                                    <input type="hidden" name="food_name" t-att-value="food.name"/>
+                                                    <input type="hidden" name="food_price" t-att-value="food.price"/>
+
+                                                    <div class="input-group mb-3" style="max-width:200px;">
+                                                        <input type="number" name="quantity" min="1" value="1"
+                                                               class="form-control"/>
+                                                    </div>
+
+                                                    <div class="d-flex gap-2">
+                                                        <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">
+                                                            Continue Shopping
+                                                        </button>
+                                                        <button type="submit" class="btn btn-success">
+                                                            Add to List
+                                                        </button>
+                                                    </div>
+                                                </form>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

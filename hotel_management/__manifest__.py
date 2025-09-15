@@ -1,7 +1,7 @@
 {
     'name': "Hotel ERP",
     'version': "18.0.1.1",
-    'depends': ['base', 'mail', 'sale', 'account', 'lunch', 'base_automation','website', 'website_payment'],
+    'depends': ['base', 'mail', 'sale', 'account', 'lunch', 'base_automation','website', 'website_payment', 'portal'],
     'license': "LGPL-3",
     'summary': """An Erp for Hotel Management""",
     'description': """For Hotel Management """,
@@ -35,6 +35,9 @@
              'website/hotel_booking_form.xml',
              'website/hotel_rooms_snippet.xml',
              'website/hotel_gallery_snippet.xml',
+             "website/food_order_portal_templates.xml",
+             "website/portal_food_list_template.xml",
+             "website/portal_food_cart_template.xml",
              'website/website_menu.xml',
              "report/hotel_management_report.xml",
              "report/hotel_management_report_template.xml"

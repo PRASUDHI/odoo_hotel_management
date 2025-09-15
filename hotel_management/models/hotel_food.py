@@ -15,6 +15,8 @@ class HotelFood(models.Model):
     quantity = fields.Integer('Quantity')
     description = fields.Html(string='Description')
     order_list_id = fields.Many2one('order.list')
+    partner_id = fields.Many2one('res.partner', string="Customer")
+
 
     def order_food_action_form(self):
         """
