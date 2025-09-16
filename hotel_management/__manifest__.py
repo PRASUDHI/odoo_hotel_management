@@ -37,7 +37,6 @@
              'website/hotel_gallery_snippet.xml',
              "website/food_order_portal_templates.xml",
              "website/portal_food_list_template.xml",
-             "website/portal_food_cart_template.xml",
              'website/website_menu.xml',
              "report/hotel_management_report.xml",
              "report/hotel_management_report_template.xml"
@@ -50,6 +49,7 @@
                                       "hotel_management/static/src/js/hotel_room_snippet.js",
                                       "hotel_management/static/src/xml/hotel_gallery_template.xml",
                                       "hotel_management/static/src/js/hotel_gallery_snippet.js",
+                                      "hotel_management/static/src/js/portal_food_order.js",
                                       ]},
     'application': True,
     'installable': True

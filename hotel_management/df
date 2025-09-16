@@ -1,294 +1,90 @@
-want a shopping cart-like workflow but with your own order.food and order.list models (not Odoo’s default product.product / sale.order).
+rect way to handle food_category_ids and food_item_ids
+1. In Controller
 
-Here’s how you can extend your flow:
+When confirming order, you should accept category + food items from the frontend (JS side) and write them to the order.
 
-1. Adjust your modal form
+Example:
 
-Right now your <form> has only hidden food_id + quantity. You also need price + name to create order.list lines.
+@http.route('/food/confirm_order', type='json', auth='user', website=True)
+def confirm_order(self, categories=None, food_items=None):
+    partner = request.env.user.partner_id
 
-<form action="/my/food/add_to_list" method="POST">
-    <input type="hidden" name="food_id" t-att-value="food.id"/>
-    <input type="hidden" name="food_name" t-att-value="food.name"/>
-    <input type="hidden" name="food_price" t-att-value="food.price"/>
+    # fetch draft order
+    order = request.env['order.food'].sudo().search([
+        ('guest_id', '=', partner.id),
+        ('order_status', '=', 'draft')
+    ], limit=1)
 
-    <div class="input-group mb-3" style="max-width:200px;">
-        <input type="number" name="quantity" min="1" value="1" class="form-control"/>
-    </div>
+    if not order:
+        return {"success": False, "error": "No draft order found"}
 
-    <div class="d-flex gap-2">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Continue Shopping
-        </button>
-        <button type="submit" class="btn btn-success">
-            Add to List
-        </button>
-    </div>
-</form>
-
-2. Add Controller Endpoint to Collect Cart Items
-
-You’ll need a controller to temporarily store selected items (like a “cart”) before confirming.
-
-class WebsiteFoodOrder(http.Controller):
-
-    @http.route(['/my/food'], type='http', auth="user", website=True)
-    def portal_food_list(self, **kw):
-        foods = request.env['hotel.food'].sudo().search([])
-        return request.render("hotel_management.portal_food_list_template", {
-            'foods': foods
+    # ✅ Add categories if provided
+    if categories:
+        order.write({
+            'food_category_ids': [(6, 0, categories)]  # replace with list of category IDs
         })
 
-    @http.route(['/my/food/add_to_list'], type='http', auth="user", website=True, csrf=True, methods=["POST"])
-    def add_to_list(self, **post):
-        food_id = int(post.get('food_id'))
-        qty = int(post.get('quantity', 1))
-        food = request.env['hotel.food'].sudo().browse(food_id)
-
-        # Use session to hold temporary cart
-        cart = request.session.get('food_cart', [])
-        cart.append({
-            'food_id': food.id,
-            'name': food.name,
-            'quantity': qty,
-            'price': food.price,
-            'total': food.price * qty,
-        })
-        request.session['food_cart'] = cart
-
-        return request.redirect('/my/food/cart')
-
-    @http.route(['/my/food/cart'], type='http', auth="user", website=True)
-    def view_cart(self, **kw):
-        cart = request.session.get('food_cart', [])
-        return request.render("hotel_management.portal_food_cart_template", {
-            'cart': cart
+    # ✅ Add food items if provided
+    if food_items:
+        order.write({
+            'food_item_ids': [(6, 0, food_items)]  # replace with list of food IDs
         })
 
-    @http.route(['/my/food/cart/confirm'], type='http', auth="user", website=True)
-    def confirm_cart(self, **kw):
-        cart = request.session.get('food_cart', [])
-        if not cart:
-            return request.redirect('/my/food')
-
-        # Create one order.food record
-        order = request.env['order.food'].sudo().create({
-            'room_id': request.env['hotel.accommodation'].sudo().search([('room_status','=','check_in')], limit=1).id,
-            'order_status': 'draft'
-        })
+    # ✅ Finally confirm order
+    order.action_confirm()
 
-        for line in cart:
-            request.env['order.list'].sudo().create({
-                'name': line['name'],
-                'quantity': line['quantity'],
-                'price': line['price'],
-                'total': line['total'],
-                'food_list_id': order.id,
-            })
+    return {"success": True, "order_id": order.id}
 
-        # clear cart
-        request.session['food_cart'] = []
+2. In OrderFood model
 
-        return request.redirect('/my/food')
-
-3. Cart Page Template
-
-Add a new template portal_food_cart_template:
-
-<template id="portal_food_cart_template" name="Food Cart">
-    <t t-call="portal.portal_layout">
-        <div class="container my-4">
-            <h2>Your Food List</h2>
-            <t t-if="cart">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Food</th>
-                            <th>Quantity</th>
-                            <th>Unit Price</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="cart" t-as="line">
-                            <tr>
-                                <td><t t-esc="line['name']"/></td>
-                                <td><t t-esc="line['quantity']"/></td>
-                                <td>$<t t-esc="line['price']"/></td>
-                                <td>$<t t-esc="line['total']"/></td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
-                <a href="/my/food/cart/confirm" class="btn btn-success">Confirm Order</a>
-            </t>
-            <t t-else="">
-                <p>No items in your list.</p>
-            </t>
-        </div>
-    </t>
-</template>
+You already have _compute_food_item_ids that dynamically links food_item_ids from food_category_ids.
+But if you also want to allow manual assignment (instead of only computed), you should remove compute and store=True from food_item_ids.
 
+Change:
 
-✅ With this flow:
+food_item_ids = Many2many('hotel.food', string="Food Item", compute="_compute_food_item_ids", store=True, readonly=False)
 
-Each modal → “Add to List” saves item to session.
 
-/my/food/cart → shows all selected food items.
+To:
 
-“Confirm Order” → creates order.food + order.list in draft state.
+food_item_ids = Many2many('hotel.food', string="Food Item")
 
-Do you want me to also make it AJAX (without page reload) when clicking Add to List, so items appear in a sidebar instantly like a cart preview?
 
-Tools
+And keep _compute_food_item_ids only if you want an auto-suggest feature. In that case, mark it @api.onchange instead of @api.depends:
 
+@api.onchange('food_category_ids')
+def _onchange_food_category_ids(self):
+    for record in self:
+        if record.food_category_ids:
+            record.food_item_ids = self.env['hotel.food'].search([
+                ('food_id', 'in', record.food_category_ids.ids)
+            ])
+        else:
+            record.food_item_ids = [(5, 0, 0)]
 
+3. In OrderFoodList
 
+When creating lines in confirm/add-to-cart, use:
 
+request.env['order.list'].sudo().create({
+    'name': food.name,
+    'quantity': item.get('quantity', 1),
+    'price': food.price,
+    'description': food.description,
+    'food_list_id': order.id,
+    'accommodation_id': room.id,
+    'room_id': room.room_id.id if room else False,
+})
 
 
+✅ With this:
 
+Categories (food_category_ids) are stored directly.
 
+Food items (food_item_ids) are also stored (either auto-populated from categories, or manually added).
 
-I see what’s happening 👀.
-Your code logic is fine, but the reason the cart shows empty after adding is almost always because the <form> is not wrapping your submit button correctly, so nothing gets posted to /my/food/add_to_list.
+Portal controller can pass both category IDs and food IDs.
 
-Right now in your modal XML you had:
-
-<form action="/my/food/cart" method="POST">
-    <input type="hidden" name="food_id" t-att-value="food.id"/>
-    <div class="input-group mb-3" style="max-width:200px;">
-        <input type="number" name="quantity" min="1" value="1" class="form-control"/>
-    </div>
-</form>
-...
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-        Continue Shopping
-    </button>
-    <button type="submit" class="btn btn-success">
-        Add to List
-    </button>
-</div>
-
-
-🔴 Problem: your Add to List button is outside the <form>.
-So when you click it, the form never submits → no food_id or quantity is sent → request.session['food_cart'] stays empty.
-
-✅ Fix: move the buttons inside the form and correct the action:
-
-<form action="/my/food/add_to_list" method="POST">
-    <input type="hidden" name="food_id" t-att-value="food.id"/>
-    <input type="hidden" name="food_name" t-att-value="food.name"/>
-    <input type="hidden" name="food_price" t-att-value="food.price"/>
-
-    <div class="input-group mb-3" style="max-width:200px;">
-        <input type="number" name="quantity" min="1" value="1" class="form-control"/>
-    </div>
-
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Continue Shopping
-        </button>
-        <button type="submit" class="btn btn-success">
-            Add to List
-        </button>
-    </div>
-</form>
-
-2. Double check CSRF
-
-Since you added csrf=False in controller, form will post fine, but if you want to keep CSRF on, add:
-
-<input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-
-3. Debug tip
-
-Add a print(post) inside your add_to_list:
-
-def add_to_list(self, **post):
-    print("POST DATA:", post)
-
-
-That way you’ll see in your Odoo logs whether food_id and quantity are really coming through.
-
-👉 After this, your items should appear in /my/food/cart correctly.
-
-Do you want me to also show you how to render a cart badge (with count of items) in the navbar so users know how many items they’ve added?
-
-Tools
-
-
-
-
-
-
-ML is now correctly structured.
-
-Main fixes compared to your earlier version:
-
-✅ The <form> now uses action="/my/food/add_to_list" (your controller route).
-
-✅ Hidden fields (food_id, food_name, food_price) are included.
-
-✅ The submit button is inside the form, so the data will actually be sent.
-
-What happens now
-
-When you click Add to List, the form posts to /my/food/add_to_list.
-
-Your controller stores the food item in request.session['food_cart'].
-
-The user is redirected to /my/food/cart, where you render the cart contents.
-
-Extra tip (cart template)
-
-Make sure your portal_food_cart_template looks something like this:
-
-<odoo>
-    <template id="portal_food_cart_template" name="Portal Food Cart">
-        <t t-call="portal.portal_layout">
-            <div class="container my-4">
-                <h2 class="mb-4">Your Food Cart</h2>
-
-                <t t-if="cart">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Food</th>
-                                <th>Qty</th>
-                                <th>Unit Price</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="cart" t-as="line">
-                                <tr>
-                                    <td><t t-esc="line['name']"/></td>
-                                    <td><t t-esc="line['quantity']"/></td>
-                                    <td>$<t t-esc="line['price']"/></td>
-                                    <td>$<t t-esc="line['total']"/></td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-
-                    <div class="text-end mt-3">
-                        <a href="/my/food/cart/confirm" class="btn btn-success">
-                            Confirm Order
-                        </a>
-                    </div>
-                </t>
-                <t t-else="">
-                    <p class="text-muted">No items in your cart.</p>
-                </t>
-            </div>
-        </t>
-    </template>
-</odoo>
-
-
-That way you’ll actually see the list of foods when you add them.
-
-Do you want me to also add a cart badge in the top navbar (like 🛒 with item count), so users always know how many items they’ve added?
+Do you want me to also show you how to update your portal template (QWeb) so that when the user selects a category, it auto-filters and shows only related foods before adding them to cart?
 
 Tools

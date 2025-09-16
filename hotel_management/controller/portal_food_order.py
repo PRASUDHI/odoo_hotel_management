@@ -1,5 +1,3 @@
-import json
-
 from odoo import http
 from odoo.http import request
 
@@ -8,61 +6,126 @@ class WebsiteFoodOrder(http.Controller):
     @http.route(['/my/food'], type='http', auth="user", website=True)
     def portal_food_list(self, **kw):
         foods = request.env['hotel.food'].sudo().search([])
-        return request.render("hotel_management.portal_food_list_template", {
-            'foods': foods
-        })
-
-    @http.route(['/my/food/add_to_list'], type='http', auth="user", website=True, csrf=False, methods=["POST"])
-    def add_to_list(self, **post):
-        print("POST DATA:", post)
-        food_id = int(post.get('food_id'))
-        qty = int(post.get('quantity', 1))
-        food = request.env['hotel.food'].sudo().browse(food_id)
-
-        cart = request.session.get('food_cart', [])
-        cart.append({
-            'food_id': food.id,
-            'name': food.name,
-            'quantity': qty,
-            'price': food.price,
-            'total': food.price * qty,
-        })
-        request.session['food_cart'] = cart
-
-        return request.redirect('/my/food/cart')
-
-    @http.route(['/my/food/cart'], type='http', auth="user", website=True)
-    def view_cart(self, **kw):
-        cart = request.session.get('food_cart', [])
-        return request.render("hotel_management.portal_food_cart_template", {
-            'cart': cart
-        })
-
-    @http.route(['/my/food/cart/confirm'], type='http', auth="user", website=True)
-    def confirm_cart(self, **kw):
-        cart = request.session.get('food_cart', [])
-        if not cart:
-            return request.redirect('/my/food')
         partner = request.env.user.partner_id
 
+        cart_order = request.env['order.food'].sudo().search([
+            ('guest_id', '=', partner.id),
+            ('order_status', '=', 'draft')
+        ], limit=1)
 
-        order = request.env['order.food'].sudo().create({
-            'room_id': request.env['hotel.accommodation'].sudo().search([('room_status', '=', 'check_in')], limit=1).id,
-            'guest_id':partner,
-            'order_status': 'draft'
+        cart_items = []
+        if cart_order:
+            cart_items = [
+                {
+                    "food_id": l.id,
+                    "name": l.name,
+                    "quantity": l.quantity,
+                    "price": l.price,
+                    "subtotal": l.quantity * l.price,
+                }
+                for l in cart_order.order_list_ids
+            ]
 
+        return request.render("hotel_management.portal_food_list_template", {
+            'foods': foods,
+            'cart_items': cart_items,
         })
 
-        for line in cart:
-            request.env['order.list'].sudo().create({
-                'name': line['name'],
-                'quantity': line['quantity'],
-                'price': line['price'],
-                'total': line['total'],
-                'food_list_id': order.id,
+    @http.route('/food/add_to_cart', type='json', auth='user', website=True)
+    def add_to_cart(self, food_id, quantity):
+        partner = request.env.user.partner_id
+        room = request.env['hotel.accommodation'].sudo().search(
+            [('room_status', '=', 'check_in'), ('guest_id', '=', partner.id)],
+            limit=1
+        )
+        order = request.env['order.food'].sudo().search([
+            ('guest_id', '=', partner.id),
+            ('order_status', '=', 'draft')
+        ], limit=1)
+        if not order:
+            order = request.env['order.food'].sudo().create({
+                'room_id': room.id,
+                'guest_id': partner.id,
+                'order_status': 'draft',
             })
 
-        request.session['food_cart'] = []
+        food = request.env['hotel.food'].sudo().browse(food_id)
+        line = request.env['order.list'].sudo().search([
+            ('food_list_id', '=', order.id),
+            ('name', '=', food.name)
+        ], limit=1)
 
-        return request.redirect('/my/food')
+        if line:
+            line.quantity += int(quantity)
+        else:
+             request.env['order.list'].sudo().create({
+                'name': food.name,
+                'quantity': quantity,
+                'price': food.price,
+                'description': food.description,
+                'food_list_id': order.id,
+                'accommodation_id': room.id,
+            })
 
+        # build cart data for frontend
+        cart_items = [
+            {
+                "food_id": l.id,
+                "name": l.name,
+                "quantity": l.quantity,
+                "price": l.price,
+                "subtotal": l.quantity * l.price,
+            }
+            for l in order.order_list_ids
+        ]
+
+        return {"success": True, "cart": cart_items}
+
+    @http.route('/food/remove_from_cart', type='json', auth='user', website=True)
+    def remove_from_cart(self, line_id):
+        partner = request.env.user.partner_id
+        order = request.env['order.food'].sudo().search([
+            ('guest_id', '=', partner.id),
+            ('order_status', '=', 'draft')
+        ], limit=1)
+
+        if not order:
+            return {"success": False, "error": "No active cart"}
+
+        line = request.env['order.list'].sudo().browse(line_id)
+        if line and line.food_list_id.id == order.id:
+            line.unlink()
+
+        # Rebuild cart
+        cart_items = [
+            {
+                "food_id": l.id,
+                "name": l.name,
+                "quantity": l.quantity,
+                "price": l.price,
+                "subtotal": l.quantity * l.price,
+            }
+            for l in order.order_list_ids
+        ]
+
+        return {"success": True, "cart": cart_items}
+
+    @http.route('/food/confirm_order', type='json', auth='user', website=True)
+    def confirm_order(self):
+        partner = request.env.user.partner_id
+        order = request.env['order.food'].sudo().search([
+            ('guest_id', '=', partner.id),
+            ('order_status', '=', 'draft'),
+            ('food_category_ids','=',)
+        ], limit=1)
+
+        if not order or not order.order_list_ids:
+            return {"success": False, "error": "Cart is empty"}
+
+        if not order.room_id or order.room_id.room_status != "check_in":
+            return {"success": False, "error": "You must be checked in to confirm an order."}
+
+
+        order.order_status = 'draft'
+
+        return {"success": True, "order_id": order.id}
