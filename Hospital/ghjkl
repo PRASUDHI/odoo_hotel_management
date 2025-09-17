@@ -1,0 +1,111 @@
+1. Create a field brand in product
+2. Show the brand name in pos order line after product name and in receipt.
+ChatGPT said:
+
+Got it ✅ You want to:
+
+Add a brand_id field in product.product / product.template.
+
+Show that brand in POS order line (screen) after product name.
+
+Show brand in POS receipt too.
+
+Here’s the step-by-step for Odoo 18 (POS module customization):
+
+1. Add Brand field in Product
+
+Create a new module or extend your existing POS customization.
+
+models/product.py
+from odoo import models, fields
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    brand_id = fields.Many2one('product.brand', string="Brand")
+
+
+(You can create a new product.brand model if not already existing)
+
+class ProductBrand(models.Model):
+    _name = 'product.brand'
+    _description = 'Product Brand'
+
+    name = fields.Char(required=True)
+
+2. Load Brand field into POS
+
+Extend POS model with pos models loader.
+
+static/src/js/pos_models.js
+odoo.define('pos_brand.ProductBrand', function (require) {
+    "use strict";
+
+    const models = require('point_of_sale.models');
+    const { PosGlobalState, Orderline } = models;
+
+    // Load brand_id field in product
+    models.load_fields('product.product', ['brand_id']);
+
+    // Extend Orderline export to include brand name
+    const OrderlineSuper = Orderline.prototype;
+    Orderline.prototype.export_for_printing = function () {
+        const json = OrderlineSuper.export_for_printing.apply(this, arguments);
+        json.brand_name = this.get_product().brand_id ? this.get_product().brand_id[1] : "";
+        return json;
+    };
+});
+
+3. Show Brand in POS Order Line (screen)
+
+Update the POS orderline template.
+
+static/src/xml/pos_brand_templates.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <!-- Extend Orderline in POS -->
+    <t t-extend="Orderline">
+        <t t-jquery=".product-name" t-operation="after">
+            <span t-if="orderline.product.brand_id" class="product-brand">
+                (<t t-esc="orderline.product.brand_id[1]"/>)
+            </span>
+        </t>
+    </t>
+
+</templates>
+
+4. Show Brand in Receipt
+
+Extend POS receipt template.
+
+<t t-extend="OrderReceipt">
+    <t t-jquery=".pos-receipt-orderlines .product-name" t-operation="after">
+        <span t-if="line.brand_name">
+            (<t t-esc="line.brand_name"/>)
+        </span>
+    </t>
+</t>
+
+5. Update Manifest
+
+Add JS + XML in __manifest__.py:
+
+'assets': {
+    'point_of_sale.assets': [
+        'your_module_name/static/src/js/pos_models.js',
+        'your_module_name/static/src/xml/pos_brand_templates.xml',
+    ],
+},
+
+
+✅ Now result will be:
+
+In POS order line → Product Name (Brand)
+
+In POS Receipt → Product Name (Brand)
+
+Do you want me to also create the product.brand model with menu and form view, or will you just link it manually from backend?
+
+Tools
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.

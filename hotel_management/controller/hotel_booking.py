@@ -74,7 +74,7 @@ class WebsiteHotelGallery(http.Controller):
 
         facility_ids = request.httprequest.form.getlist('facility_ids')
         facility_ids = [int(fid) for fid in facility_ids if fid]
-
+        print("sfc", facility_ids)
         booking = request.env['hotel.accommodation'].sudo().create({
             'guest_id': partner.id,
             'bed': bed,
