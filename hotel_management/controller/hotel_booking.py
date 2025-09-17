@@ -8,6 +8,12 @@ from odoo.http import request
 class WebsiteHotelGallery(http.Controller):
     @http.route('/hotel_gallery_data', type='json', auth="public", website=True)
     def get_hotel_gallery(self):
+        """
+            This defines a URL endpoint. 'type="json"' means it's for RPC calls from JavaScript.
+            Use Odoo's ORM to search the 'hotel.gallery' model.
+            .search_read() fetches all records and reads the 'name' and 'image_1920' fields.
+            Generate a unique ID based on the current time to prevent browser caching issues for the carousel.
+        """
         images = request.env['hotel.gallery'].sudo().search_read(
             [], ['name', 'image_1920']
         )
@@ -17,33 +23,36 @@ class WebsiteHotelGallery(http.Controller):
             'unique_id': unique_id
         }
 
-    @http.route('/get_hotel_rooms', auth="public", type='json', website=True)
-    def get_hotel_rooms(self):
-        rooms = request.env['hotel.rooms'].sudo().search_read(
-            fields=['name', 'bed', 'rent', 'facility_ids', 'state', 'image_1920']
-        )
-        for room in rooms:
-            facilities = request.env['hotel.facility'].sudo().browse(room['facility_ids'])
-            room['facilities'] = [f.name for f in facilities]
-
-            if room.get('bed'):
-                try:
-                    bed = request.env['hotel.rooms'].sudo().browse(int(room['bed']))
-                    room['bed'] = bed.name if bed.exists() else ""
-                except Exception:
-                    field = request.env['hotel.rooms']._fields['bed']
-                    room['bed'] = dict(field.selection).get(room['bed'], room['bed'])
-
-            if room.get('state'):
-                field = request.env['hotel.rooms']._fields['state']
-                room['state'] = dict(field.selection).get(room['state'], room['state'])
-
-            room['image'] = f"/web/image/hotel.rooms/{room['id']}/image_1920" if room.get('image_1920') else ""
-
-        return {"rooms": rooms}
+    # @http.route('/get_hotel_rooms', auth="public", type='json', website=True)
+    # def get_hotel_rooms(self):
+    #     rooms = request.env['hotel.rooms'].sudo().search_read(
+    #         fields=['name', 'bed', 'rent', 'facility_ids', 'state', 'image_1920']
+    #     )
+    #     for room in rooms:
+    #         facilities = request.env['hotel.facility'].sudo().browse(room['facility_ids'])
+    #         room['facilities'] = [f.name for f in facilities]
+    #
+    #         if room.get('bed'):
+    #             try:
+    #                 bed = request.env['hotel.rooms'].sudo().browse(int(room['bed']))
+    #                 room['bed'] = bed.name if bed.exists() else ""
+    #             except Exception:
+    #                 field = request.env['hotel.rooms']._fields['bed']
+    #                 room['bed'] = dict(field.selection).get(room['bed'], room['bed'])
+    #
+    #         if room.get('state'):
+    #             field = request.env['hotel.rooms']._fields['state']
+    #             room['state'] = dict(field.selection).get(room['state'], room['state'])
+    #
+    #         room['image'] = f"/web/image/hotel.rooms/{room['id']}/image_1920" if room.get('image_1920') else ""
+    #
+    #     return {"rooms": rooms}
 
     @http.route(['/hotel/booking/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=False)
     def hotel_booking_submit(self, **post):
+        """
+              Extract all the data from the form fields
+        """
         print("POST DATA:", post)
         days = int(post.get('days', 1))
         bed = post.get('bed')
@@ -55,12 +64,13 @@ class WebsiteHotelGallery(http.Controller):
         guest_vals = []
         if guest_lines:
             for g in json.loads(guest_lines):
-                guest_vals.append((0, 0, {
-                    'guest_id': int(g.get('guest_id')),
-                    'age': g.get('age'),
-                    'gender': g.get('gender'),
-                }))
-
+                guest_id = g.get('guest_id')
+                if guest_id:
+                    guest_vals.append((0, 0, {
+                        'guest_id': int(guest_id),
+                        'age': g.get('age') or False,
+                        'gender': g.get('gender') or False,
+                    }))
 
         facility_ids = request.httprequest.form.getlist('facility_ids')
         facility_ids = [int(fid) for fid in facility_ids if fid]

@@ -2,10 +2,7 @@
 <odoo>
     <template id="portal_food_list_template" name="Portal Food List">
         <t t-call="portal.portal_layout">
-            <div class="container my-3 food-order-page"
-                 t-att-data-cart="json.dumps(cart_items)">
-
-                <!--                <t t-if="cart_items">-->
+            <div class="container my-3 food-order-page" t-att-data-cart="json.dumps(cart_items)">
                 <div class="row">
                     <div class="col-12">
                         <div class="card shadow-sm border-0">
@@ -22,18 +19,13 @@
                         </div>
                     </div>
                 </div>
-                <!--                </t>-->
 
                 <h2 class="mb-4 mt-4">Order Food</h2>
                 <div class="row">
                     <t t-foreach="foods" t-as="food">
                         <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="card h-100 shadow-sm food-card"
-                                 data-bs-toggle="modal"
-                                 t-att-data-bs-target="'#foodModal_' + str(food.id)">
-                                <img t-att-src="'/web/image/hotel.food/' + str(food.id) + '/image'"
-                                     class="card-img-top"
-                                     style="height:200px; object-fit:cover"/>
+                            <div class="card h-100 shadow-sm food-card" data-bs-toggle="modal" t-att-data-bs-target="'#foodModal_' + str(food.id)">
+                                <img t-att-src="'/web/image/hotel.food/' + str(food.id) + '/image'" class="card-img-top" style="height:200px; object-fit:cover"/>
                                 <div class="card-body">
                                     <h5 class="card-title">
                                         <t t-esc="food.name"/>
@@ -49,7 +41,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal for each food -->
                         <div class="modal fade" t-att-id="'foodModal_' + str(food.id)" tabindex="-1">
                             <div class="modal-dialog modal-lg modal-dialog-centered">
                                 <div class="modal-content">
@@ -57,14 +48,12 @@
                                         <h4 class="modal-title">
                                             <t t-esc="food.name"/>
                                         </h4>
-                                        <button type="button" class="btn-close"
-                                                data-bs-dismiss="modal"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <img t-att-src="'/web/image/hotel.food/' + str(food.id) + '/image'"
-                                                     class="img-fluid rounded"/>
+                                                <img t-att-src="'/web/image/hotel.food/' + str(food.id) + '/image'" class="img-fluid rounded"/>
                                             </div>
                                             <div class="col-md-6">
                                                 <h2 class="modal-title">
@@ -78,26 +67,20 @@
                                                     <t t-esc="food.price"/>
                                                 </p>
                                                 <div class="input-group mb-3" style="max-width:200px;">
-                                                    <input type="number" name="quantity" min="1" value="1"
-                                                           class="form-control"/>
+                                                    <input type="number" name="quantity" min="1" value="1" class="form-control"/>
                                                 </div>
 
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                                         Continue Shopping
                                                     </button>
-                                                    <button type="button"
-                                                            class="btn btn-success btn-add-to-list"
-                                                            t-att-data-food-id="food.id"
-                                                            data-bs-dismiss="modal">
+                                                    <button type="button" class="btn btn-success btn-add-to-list" t-att-data-food-id="food.id" data-bs-dismiss="modal">
                                                         Add to List
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>

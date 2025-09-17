@@ -67,7 +67,6 @@ class WebsiteFoodOrder(http.Controller):
                 'accommodation_id': room.id,
             })
 
-        # build cart data for frontend
         cart_items = [
             {
                 "food_id": l.id,
@@ -116,7 +115,7 @@ class WebsiteFoodOrder(http.Controller):
         order = request.env['order.food'].sudo().search([
             ('guest_id', '=', partner.id),
             ('order_status', '=', 'draft'),
-            ('food_category_ids','=',)
+
         ], limit=1)
 
         if not order or not order.order_list_ids:

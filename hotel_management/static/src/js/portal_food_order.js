@@ -26,7 +26,6 @@ publicWidget.registry.FoodOrderCart = publicWidget.Widget.extend({
 
     start: function () {
         this._super(...arguments);
-        // ✅ read cart_items passed from template
         const cartData = this.$el.data("cart") || [];
         this._renderCart(cartData);
     },
@@ -71,8 +70,6 @@ publicWidget.registry.FoodOrderCart = publicWidget.Widget.extend({
         }
 
         $confirmBtn.show();
-
-        // Header
         $cart.append(`
             <li class="list-group-item bg-primary text-white d-flex justify-content-between">
                 <div style="width:40%">Item</div>
@@ -102,7 +99,6 @@ publicWidget.registry.FoodOrderCart = publicWidget.Widget.extend({
             `);
         });
 
-        // Total row
         $cart.append(`
             <li class="list-group-item bg-light d-flex justify-content-between align-items-center">
                 <strong style="width:40%">Total</strong>
