@@ -12,6 +12,10 @@
     'sequence':1,
     'data':["security/ir.model.access.csv",
             "views/product_views.xml"],
+    'assets': {'point_of_sale._assets_pos': ["pos_product_brand/static/src/js/pos_orderline.js",
+                                            "pos_product_brand/static/src/js/orderline.js",
+                                            "pos_product_brand/static/src/xml/pos_brand_template.xml",
+                                       ]},
     'application':True,
     # 'auto_install':True,
     'installable':True
