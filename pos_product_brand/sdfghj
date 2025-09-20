@@ -1,0 +1,687 @@
+se due limit' field to the customer record in Odoo's Point of Sale (POS) module and validate it during a transaction, you'll need to create a custom Odoo module. Here's a breakdown of the steps and the relevant code:
+
+1. Create a Custom Odoo Module
+First, set up a new module directory. This is standard Odoo development practice. The directory should contain the following structure:
+
+my_pos_due_limit/
+
+__init__.py
+
+__manifest__.py
+
+models/
+
+__init__.py
+
+models/res_partner.py
+
+static/
+
+src/
+
+js/
+
+static/src/js/pos.js
+
+2. Define the New Field in res.partner
+You need to extend the res.partner model (the customer model) to add the new field.
+
+File: models/res_partner.py
+
+Python
+
+# -*- coding: utf-8 -*-
+from odoo import models, fields
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    purchase_due_limit = fields.Float(
+        string='Purchase Due Limit',
+        help='The maximum amount of credit allowed for this customer.',
+        default=0.0
+    )
+This code adds a new Float field named purchase_due_limit to the existing res.partner model.
+
+3. Inherit and Extend the POS JavaScript
+The validation logic happens on the client side (in the browser). You need to inherit and modify the POS Order model to add the validation.
+
+File: static/src/js/pos.js
+
+JavaScript
+
+odoo.define('my_pos_due_limit.pos_inherit', function (require) {
+    "use strict";
+
+    var models = require('point_of_sale.models');
+    var Order = models.Order;
+    var rpc = require('web.rpc');
+
+    models.Order = Order.extend({
+        initialize: function(attributes, options) {
+            Order.prototype.initialize.call(this, attributes, options);
+            this.set_customer_due_limit();
+        },
+
+        set_customer_due_limit: function() {
+            var self = this;
+            var partner = this.get_client();
+            if (partner) {
+                // Fetch the partner's due limit from the server
+                rpc.query({
+                    model: 'res.partner',
+                    method: 'read',
+                    args: [partner.id, ['purchase_due_limit', 'total_due']],
+                }).then(function(result) {
+                    if (result && result.length > 0) {
+                        self.due_limit = result[0].purchase_due_limit;
+                        self.total_due = result[0].total_due;
+                    }
+                });
+            }
+        },
+
+        // This method will be called just before the order is finalized
+        finalize_validation: function() {
+            if (this.due_limit > 0 && this.total_due + this.get_total_with_tax() > this.due_limit) {
+                // If the total due plus the current order's total exceeds the limit, raise an error
+                throw new Error("Credit Limit Exceeded. The customer's total due amount will exceed the allowed limit.");
+            }
+            // Proceed with the original validation
+            Order.prototype.finalize_validation.apply(this, arguments);
+        },
+    });
+});
+This JavaScript code does the following:
+
+It extends the pos.Order model.
+
+It fetches the purchase_due_limit for the selected customer using a Remote Procedure Call (RPC) to the server.
+
+It overrides the finalize_validation method. This is a critical point as this method is called when the user attempts to finalize the payment.
+
+Inside finalize_validation, it checks if the current order total, when added to the customer's existing total due, exceeds the purchase_due_limit.
+
+If the limit is exceeded, it throws a new Error. This error will be caught by the POS frontend and displayed to the user as a validation error.
+
+4. Update the Module Manifest
+The __manifest__.py file needs to include the new dependencies and assets.
+
+File: __manifest__.py
+
+Python
+
+{
+    'name': 'POS Customer Due Limit',
+    'version': '1.0',
+    'category': 'Point of Sale',
+    'summary': 'Adds a purchase due limit field to customers in POS.',
+    'depends': ['point_of_sale'],
+    'data': [
+        'views/res_partner_views.xml', # You'll need this file
+    ],
+    'assets': {
+        'point_of_sale.assets': [
+            'my_pos_due_limit/static/src/js/pos.js',
+        ],
+    },
+    'installable': True,
+    'auto_install': False,
+}
+depends: Ensures the module loads after the point_of_sale module.
+
+assets: Crucially, this tells Odoo to load your custom JavaScript file in the POS frontend.
+
+5. Add the Field to the Partner View
+You need to make the new field visible on the customer form in the backend.
+
+File: views/res_partner_views.xml
+
+XML
+
+<odoo>
+  <data>
+    <record id="view_partner_form_inherit" model="ir.ui.view">
+      <field name="name">res.partner.form.inherit</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='parent_id']" position="after">
+          <field name="purchase_due_limit"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>
+After creating all these files, you need to install the new module in Odoo.  Once installed, the purchase_due_limit field will appear on the customer form, and the validation will be active in the POS.
+
+
+
+
+
+due limit' field to customers in Odoo's POS, you need to create a custom module with Python, JavaScript, and XML files.
+
+1. Module Structure
+First, create the module directory and the necessary subdirectories and files.
+
+my_pos_due_limit/
+├── __init__.py
+├── __manifest__.py
+├── controllers/
+├── models/
+│   ├── __init__.py
+│   └── res_partner.py
+├── static/
+│   ├── src/
+│   │   ├── js/
+│   │   │   └── pos.js
+│   │   └── xml/
+│   │       └── pos.xml
+├── views/
+│   └── res_partner_views.xml
+2. Python Files
+These files handle the backend logic, including defining the new field.
+
+my_pos_due_limit/__init__.py
+Python
+
+from . import models
+my_pos_due_limit/models/__init__.py
+Python
+
+from . import res_partner
+my_pos_due_limit/models/res_partner.py
+This file extends the res.partner model to add the new purchase_due_limit field. It also computes the total_due for a customer.
+
+Python
+
+# -*- coding: utf-8 -*-
+from odoo import models, fields, api
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    purchase_due_limit = fields.Float(
+        string='Purchase Due Limit',
+        help='The maximum amount of credit allowed for this customer.',
+        default=0.0
+    )
+
+    total_due = fields.Float(
+        string='Total Due',
+        compute='_compute_total_due',
+        store=False,
+        help='The total outstanding balance for this customer.'
+    )
+
+    @api.depends('invoice_ids.state', 'invoice_ids.amount_residual')
+    def _compute_total_due(self):
+        for partner in self:
+            total = 0.0
+            # Get outstanding invoices
+            invoices = self.env['account.move'].search([
+                ('partner_id', 'child_of', partner.id),
+                ('move_type', '=', 'out_invoice'),
+                ('state', '=', 'posted'),
+                ('payment_state', 'in', ['not_paid', 'partial'])
+            ])
+            for inv in invoices:
+                total += inv.amount_residual
+            partner.total_due = total
+3. XML Files
+XML files are used to add the new field to the customer's form view in the Odoo backend and to define the module's manifest.
+
+my_pos_due_limit/__manifest__.py
+This file declares the module's dependencies, assets, and data files.
+
+Python
+
+# -*- coding: utf-8 -*-
+{
+    'name': 'POS Customer Due Limit',
+    'version': '1.0',
+    'category': 'Point of Sale',
+    'summary': 'Adds a purchase due limit field to customers in POS and validates against it.',
+    'depends': ['point_of_sale', 'account'],
+    'data': [
+        'views/res_partner_views.xml',
+    ],
+    'assets': {
+        'point_of_sale.assets': [
+            'my_pos_due_limit/static/src/js/pos.js',
+            'my_pos_due_limit/static/src/xml/pos.xml',
+        ],
+    },
+    'installable': True,
+    'auto_install': False,
+    'license': 'LGPL-3',
+}
+my_pos_due_limit/views/res_partner_views.xml
+This file modifies the customer form view to add the new purchase_due_limit field.
+
+XML
+
+<odoo>
+  <data>
+    <record id="view_partner_form_inherit" model="ir.ui.view">
+      <field name="name">res.partner.form.inherit</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='comment']" position="before">
+          <group name="purchase_due_limit_group">
+            <field name="purchase_due_limit" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+            <field name="total_due" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+          </group>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>
+4. JavaScript and XML for POS
+These files are essential for the client-side validation logic within the POS interface.
+
+my_pos_due_limit/static/src/js/pos.js
+This file inherits and extends the POS Order model to perform the validation check. It fetches the customer's due limit and total due from the backend and prevents the order from being finalized if the limit is exceeded.
+
+JavaScript
+
+odoo.define('my_pos_due_limit.pos_inherit', function (require) {
+    "use strict";
+
+    var { Order } = require('point_of_sale.models');
+    var Registries = require('point_of_sale.Registries');
+
+    const PosOrderDueLimit = (Order) => class PosOrderDueLimit extends Order {
+        async _post_order_to_server(orders) {
+            const customer = this.get_client();
+            if (customer && customer.purchase_due_limit > 0) {
+                const new_total = customer.total_due + this.get_total_with_tax();
+                if (new_total > customer.purchase_due_limit) {
+                    throw {
+                        title: "Credit Limit Exceeded",
+                        body: `The customer's credit limit is ${this.env.pos.format_currency(customer.purchase_due_limit)}. The current transaction would bring their total due to ${this.env.pos.format_currency(new_total)}, which is over the limit.`,
+                    };
+                }
+            }
+            return super._post_order_to_server(orders);
+        }
+    };
+    Registries.Model.extend(Order, PosOrderDueLimit);
+});
+Note: The _post_order_to_server method is used here for a server-side validation check just before the order is sent. This is a more robust approach.
+
+my_pos_due_limit/static/src/xml/pos.xml
+This file adds the new fields (purchase_due_limit and total_due) to the POS customer details screen so the user can see them.
+
+XML
+
+<templates id="template" xml:space="preserve">
+    <t t-extend="ClientDetails">
+        <t t-jquery=".client-details > .details" t-append="">
+            <div class="client-detail">
+                <span class="label">Purchase Due Limit:</span>
+                <span class="value">
+                    <t t-esc="env.pos.format_currency(props.partner.purchase_due_limit)"/>
+                </span>
+            </div>
+            <div class="client-detail">
+                <span class="label">Current Due:</span>
+                <span class="value">
+                    <t t-esc="env.pos.format_currency(props.partner.total_due)"/>
+                </span>
+            </div>
+        </t>
+    </t>
+</templates>
+After creating all the files, install the custom module in your Odoo instance. The new fields will appear, and the POS will validate against the credit limit.
+
+
+from odoo import models, fields, api
+
+
+
+class ProductProduct(models.Model):
+
+_inherit = 'product.product'
+
+
+
+brand_name = fields.Char(string="Brand")
+
+
+
+@api.model
+
+def _load_pos_data_fields(self, config_id):
+
+fields_list = super()._load_pos_data_fields(config_id)
+
+fields_list += ['brand_name']
+
+return fields_listfrom odoo import models, fields
+
+
+
+
+
+class ResPartner(models.Model):
+
+_inherit = 'res.partner'
+
+
+
+
+
+due_limit = fields.Float(string="Due Limit")/** @odoo-module **/
+
+import { Orderline } from "@point_of_sale/app/generic_components/orderline/orderline";
+
+import { patch } from "@web/core/utils/patch";
+
+patch(Orderline.prototype, {
+
+props: {
+
+...Orderline.props,
+
+line: {
+
+...Orderline.props.line,
+
+shape: {
+
+...Orderline.props.line.shape,
+
+brand_name: { type: String, optional: true },
+
+},
+
+},
+
+},
+
+})/** @odoo-module **/
+
+import { PosOrderline } from "@point_of_sale/app/models/pos_order_line";
+
+import { Orderline } from "@point_of_sale/app/generic_components/orderline/orderline";
+
+import { patch } from "@web/core/utils/patch";
+
+patch(PosOrderline.prototype, {
+
+setup(vals) {
+
+console.log('this :',this)
+
+return super.setup(...arguments);
+
+},
+
+getDisplayData() {
+
+console.log(this)
+
+return {
+
+...super.getDisplayData(),
+
+brand_name: this.product_id.brand_name || "",
+
+};
+
+},
+
+});<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+<t t-name="Orderline" t-inherit="point_of_sale.Orderline"
+
+t-inherit-mode="extension">
+
+<xpath expr="//div[hasclass('product-name')]" position="after">
+
+<t t-log="line"/>
+
+<t t-if="line.brand_name">
+
+<span class="me-3"><b class="me-1">Brand:</b>
+
+<t t-esc="line.brand_name"/> </span>
+
+</t>
+
+</xpath>
+
+</t>
+
+</templates><?xml version="1.0" encoding="utf-8" ?>
+
+<odoo>
+
+<record id="view_hotel_guest_partner_form" model="ir.ui.view">
+
+<field name="name">res.partner.form.inherit</field>
+
+<field name="model">res.partner</field>
+
+<field name="inherit_id" ref="base.view_partner_form"/>
+
+<field name="arch" type="xml">
+
+<xpath expr="//field[@name='vat']" position="after">
+
+<field name="due_limit"/>
+
+</xpath>
+
+</field>
+
+</record>
+
+
+
+</odoo><?xml version="1.0" encoding="utf-8" ?>
+
+<odoo>
+
+<record id="product_brand_template_inherit" model="ir.ui.view">
+
+<field name="name">product.product.form.brand</field>
+
+<field name="model">product.product</field>
+
+<field name="inherit_id" ref="product.product_normal_form_view"/>
+
+<field name="arch" type="xml">
+
+<xpath expr="//field[@name='type']" position="before">
+
+<field name="brand_name"/>
+
+</xpath>
+
+</field>
+
+</record>
+
+</odoo> i have these ffield in my current model change accordingly i am thinking as in pos check if the custumer is added and check the limit of custumer and when the total of added list amount is greater than the limit i have added then raise a error
+
+
+
+
+Based on the code snippets you provided, here's a plan to implement the POS due limit validation. I'll modify your existing JavaScript to check the customer's due limit and validate the order's total before it's submitted.
+
+1. Update the res.partner Model
+The code for the due_limit field is already correct. You don't need to change ResPartner model.
+
+2. Add due_limit to POS
+You need to make the due_limit field available in the POS. To do this, you must extend the partner model in your POS module's JavaScript.
+
+File: my_module_name/static/src/js/pos.js
+
+JavaScript
+
+/** @odoo-module **/
+import { Orderline } from "@point_of_sale/app/generic_components/orderline/orderline";
+import { PosOrderline } from "@point_of_sale/app/models/pos_order_line";
+import { Order } from "@point_of_sale/app/store/models";
+import { patch } from "@web/core/utils/patch";
+import { Partner } from "@point_of_sale/app/store/models";
+
+// Patch the partner model to load the due_limit field
+patch(Partner.prototype, {
+    // This function runs when a partner is loaded into the POS
+    _getFields() {
+        return super._getFields().concat(['due_limit']);
+    }
+});
+
+// Patch the Order model to add the validation
+patch(Order.prototype, {
+    async _post_order_to_server(orders) {
+        const customer = this.get_partner();
+        const total_amount = this.get_total_with_tax();
+
+        // Check if a customer is selected and has a due limit set
+        if (customer && customer.due_limit > 0) {
+            // NOTE: The current total due isn't available in the POS without a server call.
+            // For a simple check, we will only validate against the current order's total.
+            // A more complex solution would involve a server call to get the total outstanding balance.
+            if (total_amount > customer.due_limit) {
+                // Raise a validation error
+                const error = {
+                    title: "Due Limit Exceeded",
+                    body: `This order's total (${this.env.pos.format_currency(total_amount)}) exceeds the customer's due limit of ${this.env.pos.format_currency(customer.due_limit)}.`,
+                };
+                this.env.services.popup.show('ErrorPopup', error);
+                // Throw an error to stop the order submission
+                throw new Error("Due Limit Exceeded");
+            }
+        }
+        return super._post_order_to_server(orders);
+    }
+});
+
+// Patching Orderline and ProductProduct models is for 'brand_name' and is separate from the 'due_limit' logic.
+// The code you provided for 'brand_name' is already correctly implemented.
+This script adds the due_limit field to the partner model in the POS data, so the front-end can access it. It then patches the Order model's _post_order_to_server method to perform the validation check. If the order's total exceeds the customer's due limit, it shows an error pop-up and stops the order from being submitted.
+
+3. Update the POS Manifest
+You need to update your module's manifest file to ensure the new JavaScript file is loaded in the POS.
+
+File: my_module_name/__manifest__.py
+
+Python
+
+{
+    'name': 'My POS Customizations',
+    'version': '1.0',
+    'depends': ['point_of_sale'],
+    'data': [
+        'views/res_partner_views.xml',
+    ],
+    'assets': {
+        'point_of_sale.assets': [
+            'my_module_name/static/src/js/pos.js',
+            # Add other XML/JS files as needed
+            'my_module_name/static/src/xml/pos.xml',
+        ],
+    },
+    'installable': True,
+    'license': 'LGPL-3',
+}
+4. Create an Error Popup Component (Optional but Recommended)
+For a better user experience, you should create a custom pop-up. Odoo's newer POS versions use an ErrorPopup component. You don't need to define it if you only use the standard ErrorPopup.
+
+5. Final Setup
+After implementing these changes, you will need to:
+
+Upgrade your Odoo module.
+
+Reload your browser with the POS interface.
+
+When you select a customer with a due_limit, the new validation will trigger when you try to pay for an order.
+
+If the order's total exceeds the limit, a pop-up will appear, and you will be unable to complete the transaction.
+
+This approach provides a robust client-side validation using the code snippets you provided. It's a simple, effective solution that prevents orders from being created if they exceed the due limit.
+
+
+
+
+
+
+
+Gemini can make mistakes, so double-check it
+
+
+
+1. The Corrected pos.xml
+You've provided a pos.xml that inherits from an Orderline template to display the product's brand. To implement the due limit logic, you need to add a similar inheritance for the ClientDetails template to show the customer's due limit and current due amount. This provides a visual cue for the POS user.
+
+Here is the corrected and complete pos.xml that combines your brand name display with the new due limit display.
+
+File: my_module_name/static/src/xml/pos.xml
+
+XML
+
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="Orderline" t-inherit="point_of_sale.Orderline"
+       t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('product-name')]" position="after">
+            <t t-if="props.line.product.brand_name">
+                <span class="ms-3"><b class="me-1">Brand:</b>
+                    <t t-esc="props.line.product.brand_name"/>
+                </span>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-name="ClientDetails" t-inherit="point_of_sale.ClientDetails"
+       t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('client-details')]" position="inside">
+            <div class="client-detail">
+                <span class="label">Due Limit:</span>
+                <span class="value">
+                    <t t-if="props.partner.due_limit">
+                        <t t-esc="env.pos.format_currency(props.partner.due_limit)"/>
+                    </t>
+                    <t t-else="">
+                        No Limit
+                    </t>
+                </span>
+            </div>
+        </xpath>
+    </t>
+</templates>
+2. Explanation of Changes
+Orderline Template: The xpath and logic for displaying the brand_name are correct. I've slightly adjusted the class to ms-3 (margin-start) for better spacing. I've also corrected t-log which is for debugging and not for production. The t-if condition now checks for props.line.product.brand_name which is the correct way to access the product data in the new POS framework.
+
+ClientDetails Template: This is the critical addition. I've used t-inherit-mode="extension" to add new content to the ClientDetails template.
+
+The xpath //div[hasclass('client-details')] targets the main container for customer information on the POS screen.
+
+position="inside" ensures that our new information is placed within that container.
+
+I've added a new div with class client-detail to maintain consistency with the existing layout.
+
+The t-if statement checks if the customer (props.partner) has a due_limit set. If so, it displays the value formatted as a currency; otherwise, it shows "No Limit".
+
+This XML, combined with the previously provided Python and JavaScript code, will ensure that the due_limit field is not only available for validation but also visible to the cashier directly on the POS screen.
+
+
+
+
+
+
+
+Gemini can make mistakes, so double-check it
+
+
+
+
+

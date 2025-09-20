@@ -1,6 +1,5 @@
-from email.policy import default
 
-from odoo import models, fields, _, api, Command
+from odoo import models, fields, _, api
 from odoo.exceptions import ValidationError
 from datetime import timedelta, date, datetime
 
