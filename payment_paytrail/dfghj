@@ -1,0 +1,284 @@
+ourse. Here is the refactored code with the signature calculation logic integrated directly into the PaymentProvider class, removing the need for the separate Crypto class.
+
+This version is cleaner and keeps all the payment-related logic within the Odoo model itself.
+
+Refactored Code
+Python
+
+# -*- coding: utf-8 -*-
+import hmac
+import hashlib
+import json
+import requests
+import uuid
+from datetime import datetime, timezone
+from math import floor
+
+from odoo import fields, models, _
+from odoo.exceptions import ValidationError
+
+class PaymentProvider(models.Model):
+    """Adding required fields and methods for Paytrail Integration"""
+    _inherit = 'payment.provider'
+
+    code = fields.Selection(
+        selection_add=[('paytrail', "Paytrail")],
+        ondelete={'paytrail': 'set default'}
+    )
+    paytrail_merchant_id = fields.Char(
+        string="Paytrail Merchant ID",
+        help="The key solely used to identify the account with Paytrail.",
+        required_if_provider='paytrail',
+    )
+    paytrail_secret_key = fields.Char(
+        string="Paytrail Secret Key",
+        required_if_provider='paytrail',
+        groups='base.group_system',
+    )
+
+    def _paytrail_calculate_signature(self, headers: dict, body: str = '') -> str:
+        """
+        Calculate the HMAC-SHA256 signature for the Paytrail request.
+        The signature is calculated based on sorted 'checkout-' headers and the request body.
+        """
+        self.ensure_one()
+
+        # 1. Collect all 'checkout-' headers.
+        checkout_headers = {k: v for k, v in headers.items() if k.startswith('checkout-')}
+
+        # 2. Sort headers alphabetically by key and format them as "key:value".
+        # This is required by Paytrail for a consistent signature.
+        data_to_sign_parts = [f"{key}:{value}" for key, value in sorted(checkout_headers.items())]
+
+        # 3. Append the request body.
+        data_to_sign_parts.append(body)
+
+        # 4. Join the final list into a single string with newlines.
+        message = '\n'.join(data_to_sign_parts)
+
+        # 5. Compute the HMAC-SHA256 hash using the secret key.
+        signature = hmac.new(
+            self.paytrail_secret_key.encode('utf-8'),
+            message.encode('utf-8'),
+            digestmod=hashlib.sha256
+        ).hexdigest()
+
+        return signature
+
+    def paytrail_create_payment(self, transaction):
+        """Initializes payload and headers, then creates a payment request to Paytrail."""
+        self.ensure_one()
+
+        # Convert amount to EUR cents, as required by Paytrail
+        from_currency = transaction.currency_id
+        to_currency = self.env['res.currency'].search([('name', '=', 'EUR')], limit=1)
+
+        if not to_currency:
+            raise ValidationError(_("The EUR currency is not available in the system."))
+
+        # Convert amount and ensure it's an integer (cents)
+        converted_amount = from_currency._convert(
+            transaction.amount, to_currency, self.env.company, fields.Date.today()
+        )
+        amount_in_cents = floor(converted_amount * 100)
+
+        # Build the payload for the API request
+        base_url = self.get_base_url()
+        payload = {
+            "stamp": str(uuid.uuid4()),
+            "reference": transaction.reference,
+            "amount": amount_in_cents,
+            "currency": "EUR",
+            "language": "EN",
+            "items": [{
+                "unitPrice": amount_in_cents,
+                "units": 1,
+                "vatPercentage": 0, # Assuming 0 VAT, adjust if necessary
+                "productCode": transaction.reference,
+                "description": transaction.reference
+            }],
+            "customer": {"email": transaction.partner_email},
+            "redirectUrls": {
+                "success": f"{base_url}/payment/paytrail/success",
+                "cancel": f"{base_url}/payment/paytrail/cancel",
+            },
+        }
+
+        # Build headers for the API request
+        headers = {
+            "checkout-account": self.paytrail_merchant_id,
+            "checkout-algorithm": "sha256",
+            "checkout-method": "POST",
+            "checkout-nonce": str(uuid.uuid4()),
+            "checkout-timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+            "content-type": "application/json; charset=utf-8",
+        }
+
+        # Create the JSON body and calculate the signature
+        body = json.dumps(payload, separators=(',', ':'))
+        headers["signature"] = self._paytrail_calculate_signature(headers, body)
+
+        # Send the request to Paytrail
+        api_url = "https://services.paytrail.com/payments"
+        try:
+            response = requests.post(api_url, headers=headers, data=body, timeout=20)
+            response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
+        except requests.exceptions.RequestException as e:
+            raise ValidationError(_("Paytrail Error: Could not connect to the payment gateway. %s", e))
+
+        response_data = response.json()
+        return response_data.get("href")
+
+Summary of Changes
+Removed Crypto Class: The separate class for handling cryptography has been eliminated.
+
+Added _paytrail_calculate_signature Method: This new private method is now part of the PaymentProvider class. It neatly contains all the logic for creating the correct signature string and computing the HMAC hash, making the code more organized and self-contained.
+
+Corrected Sorting: The signature calculation now explicitly sorts the checkout- headers alphabetically by key. This is a requirement from Paytrail to ensure the signature is always calculated on the exact same string.
+
+Improved Error Handling: Added a try...except block around the requests.post call and used response.raise_for_status() for more robust error handling.
+
+Cleaned up Code: Added comments, improved variable names, and used standard Odoo practices like self.ensure_one() for better readability and maintainability.
+
+Simplified Timestamp: Used .isoformat() for a cleaner and more standard way to generate the UTC timestamp required by Paytrail.
+
+
+
+
+
+
+
+# -*- coding: utf-8 -*-
+
+from odoo import http
+
+from odoo.http import request
+
+from werkzeug.utils import redirect
+
+
+
+
+
+class PaymentProviderController(http.Controller):
+
+@http.route('/payment/paytrail/redirect/<int:transaction_id>', type='http', auth='public')
+
+def paytrail_redirect(self, transaction_id):
+
+"""Sending request to the Paytrail API"""
+
+transaction = request.env['payment.transaction'].browse(transaction_id)
+
+redirect_url = transaction.provider_id.paytrail_create_payment(transaction)
+
+return redirect(redirect_url, code=302)
+
+
+
+@http.route('/payment/paytrail/success', type='http', auth='public')
+
+def paytrail_success(self, **kwargs):
+
+"""Set the transaction done from the API response if done"""
+
+reference = kwargs.get('checkout-reference')
+
+transaction = request.env['payment.transaction'].search([('reference', '=', reference)])
+
+if transaction:
+
+transaction.provider_reference = kwargs.get('checkout-transaction-id')
+
+transaction._set_done()
+
+return request.redirect('/payment/status')
+
+
+
+@http.route('/payment/paytrail/cancel', type='http', auth='public')
+
+def paytrail_cancel(self, **kwargs):
+
+"""Set the transaction cancelled from the API response if cancel"""
+
+reference = kwargs.get('checkout-reference')
+
+transaction = request.env['payment.transaction'].search([('reference', '=', reference)])
+
+if transaction:
+
+transaction.provider_reference = kwargs.get('checkout-transaction-id')
+
+transaction._set_canceled()
+
+return request.redirect('/payment/status?cancel=true')i dont know kwargs can you rewrite kwargs.get to nay other
+
+
+
+
+
+Show thinking
+Of course. I can rewrite that for you.
+
+In Odoo controllers, **kwargs is a standard Python way to capture all the parameters sent in the URL. An alternative and equally good way to access these same parameters is through the global request object, specifically request.params.
+
+The request.params object is a dictionary that contains all the parameters from the URL. Using request.params.get('parameter_name') is a safe way to get a value, as it will return None if the parameter doesn't exist, preventing errors.
+
+Here is your controller code rewritten to use request.params instead of **kwargs.
+
+Rewritten Controller Code
+Python
+
+# -*- coding: utf-8 -*-
+from odoo import http
+from odoo.http import request
+from werkzeug.utils import redirect
+
+
+class PaymentProviderController(http.Controller):
+    @http.route('/payment/paytrail/redirect/<int:transaction_id>', type='http', auth='public')
+    def paytrail_redirect(self, transaction_id):
+        """Sending request to the Paytrail API"""
+        transaction = request.env['payment.transaction'].browse(transaction_id)
+        redirect_url = transaction.provider_id.paytrail_create_payment(transaction)
+        return redirect(redirect_url, code=302)
+
+    @http.route('/payment/paytrail/success', type='http', auth='public')
+    def paytrail_success(self):
+        """Set the transaction done from the API response if done"""
+        # Access URL parameters from the request.params dictionary
+        reference = request.params.get('checkout-reference')
+        transaction = request.env['payment.transaction'].search([('reference', '=', reference)])
+
+        if transaction:
+            transaction.provider_reference = request.params.get('checkout-transaction-id')
+            transaction._set_done()
+
+        return request.redirect('/payment/status')
+
+    @http.route('/payment/paytrail/cancel', type='http', auth='public')
+    def paytrail_cancel(self):
+        """Set the transaction cancelled from the API response if cancel"""
+        # Access URL parameters from the request.params dictionary
+        reference = request.params.get('checkout-reference')
+        transaction = request.env['payment.transaction'].search([('reference', '=', reference)])
+
+        if transaction:
+            transaction.provider_reference = request.params.get('checkout-transaction-id')
+            transaction._set_canceled()
+
+        return request.redirect('/payment/status?cancel=true')
+Summary of Changes
+The function definitions for paytrail_success and paytrail_cancel no longer include **kwargs.
+
+Instead of kwargs.get(...), the code now uses request.params.get(...) to achieve the exact same result: safely reading parameters from the incoming URL.
+
+Continue with Google AI Pro
+You’ve reached your limit on 2.5 Pro until Sep 23, 11:25 PM. Try Google AI Pro for higher limits.
+
+Upgrade
+
+
+
+

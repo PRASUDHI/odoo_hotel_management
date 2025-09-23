@@ -28,8 +28,8 @@ patch(PaymentScreen.prototype, {
         if (due_limit > 0) {
             if (total_amount > due_limit) {
                 this.dialog.add(AlertDialog, {
-                    title: _t("Limit Exceeds"),
-                    body: _t("Your purchase limit is : " + due_limit),
+                    title: _t("Due Limit Exceeds"),
+                    body: _t("Your payment due limit is : " + due_limit),
                 });
                 return;
             }

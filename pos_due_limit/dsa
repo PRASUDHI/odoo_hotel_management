@@ -1,0 +1,217 @@
+tand the Structure of payment_paypal
+
+From the code you pasted, PayPal integration in Odoo consists of:
+
+Model (payment.provider) extension
+Stores credentials (Client ID, Secret, Webhook ID, etc.) and implements API request methods.
+
+Transaction Handling (payment.transaction)
+Handles transaction creation (_paypal_prepare_order_payload, _get_specific_processing_values, _process_notification_data).
+
+Controller (controllers/main.py)
+Defines routes to handle redirects, notifications (webhooks/IPN), and order completion.
+
+JS Assets
+Extends payment_form.js and payment_button.js to render PayPal’s checkout button and handle callbacks.
+
+XML Views
+Adds fields for credentials in the backend, templates for frontend checkout buttons, and transaction debug info.
+
+2. Paytrail Docs Reference
+
+Paytrail API documentation: https://docs.paytrail.com/
+
+Key flows you’ll need:
+
+Payment creation → POST /payments
+
+Redirect to Paytrail checkout page (with redirect_urls)
+
+Payment status query → GET /payments/{transactionId}
+
+Webhook handling → Paytrail notifies backend via configured callback.
+
+3. How to Build payment_paytrail
+
+You will mirror PayPal’s module structure but adapt to Paytrail’s API:
+
+a) Python Models
+
+Extend payment.provider:
+
+class PaymentProvider(models.Model):
+    _inherit = 'payment.provider'
+
+    code = fields.Selection(
+        selection_add=[('paytrail', "Paytrail")],
+        ondelete={'paytrail': 'set default'}
+    )
+    paytrail_merchant_id = fields.Char(required_if_provider='paytrail')
+    paytrail_secret_key = fields.Char(required_if_provider='paytrail', groups='base.group_system')
+
+
+Create API request method:
+
+def _paytrail_make_request(self, endpoint, payload=None, method='POST'):
+    base_url = "https://services.paytrail.com"  # Use sandbox URL in test mode
+    headers = {
+        'Content-Type': 'application/json',
+        'checkout-account': self.paytrail_merchant_id,
+        'checkout-algorithm': 'sha256',
+        'checkout-method': method,
+    }
+    # Sign with secret key → Paytrail requires HMAC signature
+    headers['signature'] = self._generate_signature(headers, payload)
+    url = f"{base_url}{endpoint}"
+    response = requests.request(method, url, headers=headers, json=payload, timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+b) Transaction Handling
+
+Inherit payment.transaction:
+
+class PaymentTransaction(models.Model):
+    _inherit = 'payment.transaction'
+
+    def _get_specific_processing_values(self, processing_values):
+        res = super()._get_specific_processing_values(processing_values)
+        if self.provider_code != 'paytrail':
+            return res
+
+        payload = {
+            "amount": int(self.amount * 100),  # Paytrail expects cents
+            "currency": self.currency_id.name,
+            "reference": self.reference,
+            "redirect_urls": {
+                "success": f"{self.provider_id.get_base_url()}/payment/paytrail/success",
+                "cancel": f"{self.provider_id.get_base_url()}/payment/paytrail/cancel"
+            }
+        }
+        order = self.provider_id._paytrail_make_request("/payments", payload)
+        return {'checkout_url': order['href']}
+
+c) Controllers
+
+Create controllers/main.py for handling Paytrail callbacks:
+
+class PaytrailController(http.Controller):
+    @http.route('/payment/paytrail/success', type='http', auth='public', csrf=False)
+    def paytrail_success(self, **data):
+        # Handle success, confirm payment
+        return request.redirect('/payment/status')
+
+    @http.route('/payment/paytrail/cancel', type='http', auth='public', csrf=False)
+    def paytrail_cancel(self, **data):
+        # Handle cancellation
+        return request.redirect('/payment/status')
+
+    @http.route('/payment/paytrail/webhook', type='json', auth='public')
+    def paytrail_webhook(self, **data):
+        # Handle async webhook from Paytrail
+        _logger.info("Paytrail webhook data: %s", data)
+
+d) JS + Templates
+
+Add a Paytrail button like PayPal’s.
+
+You don’t need a custom SDK like PayPal → just redirect to Paytrail’s checkout page.
+
+Modify payment_form to redirect user when Paytrail is chosen.
+
+4. Testing
+
+Use Paytrail Sandbox Merchant ID + Secret Key from docs.
+
+Test flow:
+
+Customer chooses Paytrail.
+
+Order created → redirect to Paytrail page.
+
+Customer pays → redirected back to success URL.
+
+Webhook confirms payment in background.
+
+✅ Summary:
+You can take the PayPal module as a skeleton and replace API endpoints + auth + payloads with Paytrail’s. Paytrail is actually simpler (redirect-based, no inline JS SDK).
+
+Do you want me to draft a minimal working payment_paytrail module structure (folders + files with boilerplate) so you can start coding directly?
+
+ot it 👍 You want the signature generation function for Paytrail instead of APS.
+
+Paytrail (by Nets) uses HMAC-SHA256 with your merchant secret key, not the APS "wrap-with-key" style. The signing process is slightly different.
+
+🔑 Paytrail Signature Rules
+
+According to Paytrail docs:
+
+Collect all headers starting with checkout- (and possibly signature depending on flow).
+
+Sort them alphabetically by key.
+
+Concatenate them as:
+
+key1:value1\n
+key2:value2\n
+...
+
+
+(line break between each).
+
+Create an HMAC-SHA256 digest using your merchant secret.
+
+Encode the digest in Base64 → that’s your signature.
+
+🐍 Example in Python (for Odoo)
+import hmac
+import hashlib
+import base64
+
+def _paytrail_calculate_signature(self, headers, secret_key):
+    """
+    Compute Paytrail HMAC-SHA256 signature.
+
+    :param dict headers: Dict of headers including checkout-* fields.
+    :param str secret_key: Merchant secret key.
+    :return: Base64-encoded signature string.
+    """
+    # 1. Only include headers starting with 'checkout-'
+    sign_headers = {k: v for k, v in headers.items() if k.lower().startswith("checkout-")}
+
+    # 2. Sort by key alphabetically
+    sorted_items = sorted(sign_headers.items(), key=lambda x: x[0].lower())
+
+    # 3. Build signing string
+    signing_string = "\n".join([f"{k}:{v}" for k, v in sorted_items])
+
+    # 4. Compute HMAC-SHA256
+    digest = hmac.new(
+        secret_key.encode("utf-8"),
+        signing_string.encode("utf-8"),
+        hashlib.sha256,
+    ).digest()
+
+    # 5. Base64 encode
+    return base64.b64encode(digest).decode("utf-8")
+
+✅ Example Usage
+headers = {
+    "checkout-account": "375917",
+    "checkout-algorithm": "sha256",
+    "checkout-method": "POST",
+    "checkout-nonce": "564635208570151",
+    "checkout-timestamp": "2018-07-06T10:01:31.904Z",
+    "content-type": "application/json; charset=utf-8",
+}
+
+secret_key = "SAIPPUAKAUPPIAS"
+
+signature = self._paytrail_calculate_signature(headers, secret_key)
+print("Generated signature:", signature)
+
+
+This signature must be sent as the signature header in your request.
+When validating an incoming Paytrail callback, you recompute the signature with the same logic and compare with signature header sent by Paytrail.
+
+👉 Do you want me to show you how to integrate this into an Odoo 18 custom payment provider module (like where to put _paytrail_calculate_signature, how to call it during payment.transaction flow, etc.)?
