@@ -12,7 +12,6 @@ from odoo.exceptions import ValidationError
 
 
 class PaymentProvider(models.Model):
-    """Adding required fields and methods for Paytrail Integration"""
     _inherit = 'payment.provider'
 
     code = fields.Selection(
@@ -31,10 +30,7 @@ class PaymentProvider(models.Model):
     )
 
     def _paytrail_calculate_signature(self, headers: dict, body: str = '') -> str:
-        """
-        Calculate the HMAC-SHA256 signature for the Paytrail request.
-        The signature is calculated based on sorted 'checkout-' headers and the request body.
-        """
+        # print("erty")
         self.ensure_one()
 
         # 1. Collect all 'checkout-' headers.
@@ -60,7 +56,6 @@ class PaymentProvider(models.Model):
         return signature
 
     def paytrail_create_payment(self, transaction):
-        """Initializes payload and headers, then creates a payment request to Paytrail."""
         self.ensure_one()
 
         # Convert amount to EUR cents, as required by Paytrail
@@ -87,7 +82,7 @@ class PaymentProvider(models.Model):
             "items": [{
                 "unitPrice": amount_in_cents,
                 "units": 1,
-                "vatPercentage": 0,  # Assuming 0 VAT, adjust if necessary
+                "vatPercentage": 0,
                 "productCode": transaction.reference,
                 "description": transaction.reference
             }],

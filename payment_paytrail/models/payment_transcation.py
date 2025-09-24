@@ -6,6 +6,7 @@ class PaymentTransaction(models.Model):
     _inherit = 'payment.transaction'
 
     def _get_specific_rendering_values(self, processing_values):
+        print("dfghjk")
         """Override the default method executed when the Pay Now button"""
         if self.provider_code == 'paytrail':
             redirect_url = f"/payment/paytrail/redirect/{self.id}"

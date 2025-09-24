@@ -4,6 +4,13 @@ from odoo.http import content_disposition, request
 from odoo.tools import html_escape
 
 class XLSXReportController(http.Controller):
+    """
+        Controller to handle requests for generating XLSX reports.
+
+    This controller exposes an HTTP route (`/xlsx_reports`) that can be
+    called from JavaScript to download reports in Excel format.
+
+    """
     @http.route('/xlsx_reports', type='http', auth='user',
                 csrf=False)
     def get_report_xlsx(self, model, options, output_format, report_name,

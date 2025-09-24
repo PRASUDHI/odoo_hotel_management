@@ -6,13 +6,17 @@ from odoo.http import request
 
 
 class WebsiteHotelGallery(http.Controller):
+    """
+          1. Serving hotel gallery images to the website (via JSON for frontend carousels).
+          2. Processing hotel booking submissions made by users from the website.
+    """
     @http.route('/hotel_gallery_data', type='json', auth="public", website=True)
     def get_hotel_gallery(self):
         """
-            This defines a URL endpoint. 'type="json"' means it's for RPC calls from JavaScript.
-            Use Odoo's ORM to search the 'hotel.gallery' model.
-            .search_read() fetches all records and reads the 'name' and 'image_1920' fields.
-            Generate a unique ID based on the current time to prevent browser caching issues for the carousel.
+             `type="json"`: Can be called via JavaScript (RPC) to fetch data.
+             Uses Odoo ORM (`hotel.gallery`) with `.search_read()` to get all images.
+             Retrieves only `name` and `image_1920` fields to avoid unnecessary data.
+             Generates a unique ID (`hg-<timestamp>`) to prevent caching issues when reloading carousels on the frontend.
         """
         images = request.env['hotel.gallery'].sudo().search_read(
             [], ['name', 'image_1920']
@@ -23,35 +27,25 @@ class WebsiteHotelGallery(http.Controller):
             'unique_id': unique_id
         }
 
-    # @http.route('/get_hotel_rooms', auth="public", type='json', website=True)
-    # def get_hotel_rooms(self):
-    #     rooms = request.env['hotel.rooms'].sudo().search_read(
-    #         fields=['name', 'bed', 'rent', 'facility_ids', 'state', 'image_1920']
-    #     )
-    #     for room in rooms:
-    #         facilities = request.env['hotel.facility'].sudo().browse(room['facility_ids'])
-    #         room['facilities'] = [f.name for f in facilities]
-    #
-    #         if room.get('bed'):
-    #             try:
-    #                 bed = request.env['hotel.rooms'].sudo().browse(int(room['bed']))
-    #                 room['bed'] = bed.name if bed.exists() else ""
-    #             except Exception:
-    #                 field = request.env['hotel.rooms']._fields['bed']
-    #                 room['bed'] = dict(field.selection).get(room['bed'], room['bed'])
-    #
-    #         if room.get('state'):
-    #             field = request.env['hotel.rooms']._fields['state']
-    #             room['state'] = dict(field.selection).get(room['state'], room['state'])
-    #
-    #         room['image'] = f"/web/image/hotel.rooms/{room['id']}/image_1920" if room.get('image_1920') else ""
-    #
-    #     return {"rooms": rooms}
+
 
     @http.route(['/hotel/booking/submit'], type='http', auth="user", methods=['POST'], website=True, csrf=False)
     def hotel_booking_submit(self, **post):
         """
-              Extract all the data from the form fields
+        - `auth="user"`: Only logged-in users can book.
+        - Accepts `POST` form data containing:
+            * days (int): number of days booked
+            * bed (str): bed type
+            * booking_time (datetime): selected booking date/time
+            * guests (int): number of guests
+            * guest_lines (json): additional guest info (id, age, gender)
+            * facility_ids (list[int]): facilities selected by user
+        - Parses form data into proper types.
+        - Builds `guest_vals` list of guests to create linked accommodation records.
+        - Creates a new `hotel.accommodation` record with:
+            guest, bed, days, booking time, facilities, guests, booking method.
+        - Renders success template with booking details.
+
         """
         print("POST DATA:", post)
         days = int(post.get('days', 1))

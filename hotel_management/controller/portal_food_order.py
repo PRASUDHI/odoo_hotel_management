@@ -2,9 +2,20 @@ from odoo import http
 from odoo.http import request
 
 class WebsiteFoodOrder(http.Controller):
+    """
+        Controller for managing hotel food ordering through the website portal.
+    """
 
     @http.route(['/my/food'], type='http', auth="user", website=True)
     def portal_food_list(self, **kw):
+        """
+                Render the food menu page with available foods and current cart items.
+
+                - Fetches all available food records (`hotel.food`).
+                - Identifies the logged-in user's draft order (`order.food`).
+                - Builds a list of cart items (food, quantity, price, subtotal).
+                - Renders the `portal_food_list_template` with foods and cart data.
+        """
         foods = request.env['hotel.food'].sudo().search([])
         partner = request.env.user.partner_id
 
@@ -33,6 +44,15 @@ class WebsiteFoodOrder(http.Controller):
 
     @http.route('/food/add_to_cart', type='json', auth='user', website=True)
     def add_to_cart(self, food_id, quantity):
+        """
+                Add a food item to the logged-in user's cart.
+
+                - Finds the guest's active accommodation (room with status 'check_in').
+                - Locates or creates a draft order (`order.food`) for the guest.
+                - If the food already exists in the cart (`order.list`), increment quantity.
+                - Otherwise, create a new order line with the food details.
+                - Returns the updated cart items list as JSON.
+        """
         partner = request.env.user.partner_id
         room = request.env['hotel.accommodation'].sudo().search(
             [('room_status', '=', 'check_in'), ('guest_id', '=', partner.id)],
@@ -82,6 +102,14 @@ class WebsiteFoodOrder(http.Controller):
 
     @http.route('/food/remove_from_cart', type='json', auth='user', website=True)
     def remove_from_cart(self, line_id):
+        """
+               Confirm the guest's current draft food order.
+
+               - Ensures the user has a draft order with items.
+               - Validates that the guest is checked into a room.
+               - Updates order status (currently keeps it 'draft' — may need 'confirmed').
+               - Returns success response with order ID.
+        """
         partner = request.env.user.partner_id
         order = request.env['order.food'].sudo().search([
             ('guest_id', '=', partner.id),

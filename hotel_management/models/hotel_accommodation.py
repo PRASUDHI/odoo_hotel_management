@@ -6,8 +6,7 @@ from datetime import timedelta, date, datetime
 
 class HotelAccommodation(models.Model):
     """
-        Accommodation model for the choosing the rooms for guests and enter the number of guests
-        in payment tab having the total rent and overall food cost
+       Hotel accommodation model for managing guest stays, payments, and room status.
     """
     _name = "hotel.accommodation"
     _description = "Hotel Accommodation"
@@ -52,15 +51,13 @@ class HotelAccommodation(models.Model):
     booking_method = fields.Char(string="Booking Method",default="Manual")
 
     def _compute_invoice_count(self):
-        """
-            To compute the number of invoice
-        """
+        """Compute number of invoices linked to this accommodation."""
         for record in self:
             record.invoice_count = self.env['account.move'].search_count([('accommodation_id', '=', record.id)])
 
     def action_view_invoices(self):
         """
-            Return the action for the views of the invoices linked to the transaction
+            Open the invoices related to this accommodation in list/form view
         """
         self.ensure_one()
         return  {
@@ -76,7 +73,7 @@ class HotelAccommodation(models.Model):
         }
     def _compute_food_order_count(self):
         """
-                compute the ordered food count with search_count
+                Compute number of food orders for this accommodation.
         """
         for record in self:
             record.food_order_count = self.env['order.food'].search_count([('room_id', '=', record.id)])
@@ -84,7 +81,7 @@ class HotelAccommodation(models.Model):
 
     def action_view_food_orders(self):
         """
-            Return the action for the views of the ordered food linked to the accommodation
+            Open food orders related to this accommodation.
         """
         self.ensure_one()
         return {
@@ -99,7 +96,7 @@ class HotelAccommodation(models.Model):
         }
     def action_archive_accommodation(self):
         """
-            archive the cancelled accommodation if it is cancelled two days ago
+            Archive cancelled accommodations older than two days
         """
         two_days_ago = datetime.today() - timedelta(days=2)
         records = self.search([
@@ -111,7 +108,7 @@ class HotelAccommodation(models.Model):
     @api.model
     def action_send_checkout_email(self):
         """
-            send mail to the guest whose check out date is today
+            send checkout reminder email to guests whose expected date is today
         """
         today = date.today()
         records = self.search([
@@ -128,8 +125,7 @@ class HotelAccommodation(models.Model):
     @api.depends('check_out', 'expected_date','room_status')
     def _compute_expected_date_color(self):
         """
-            Yellow: Expected date = current day
-            Red: Expected date = current day but not Check-out
+            Set color indicator for expected checkout date (yellow/today, red/past).
         """
         today = date.today()
         for rec in self:
@@ -146,7 +142,7 @@ class HotelAccommodation(models.Model):
     @api.depends('order_list_ids.total')
     def _compute_food_total(self):
         """
-        Calculate total food by each order line
+            Compute total food cost from order lines.
         """
         for rec in self:
             rec.food_total = sum(line.total for line in rec.order_list_ids)
@@ -154,7 +150,7 @@ class HotelAccommodation(models.Model):
     @api.depends('check_in', 'check_out', 'rooms_id.rent','payment_id.total')
     def _compute_total_rent(self):
         """
-                compute the total rent based on check_in ,check_out and rent of that particular room.
+            Compute total rent based on check-in/check-out dates and room rent
         """
         for rec in self:
             if rec.check_in and rec.check_out and rec.rooms_id:
@@ -171,7 +167,7 @@ class HotelAccommodation(models.Model):
     @api.depends( 'payment_line_ids.total')
     def _compute_total_amount(self):
         """
-            Compute the total amount of food, rent, and other payment lines
+            Compute total amount including rent, food, and other payment lines
         """
         for rec in self:
             rec.total_amount= sum(line.total for line in rec.payment_line_ids)
@@ -179,7 +175,7 @@ class HotelAccommodation(models.Model):
     @api.depends('facility_ids', 'bed')
     def _compute_filtered_rooms(self):
         """
-                Filter the rooms based on bed type,facility,state, otherwise show all rooms
+            Filter rooms based on bed type, facilities, and availability.
         """
         for rec in self:
             domain = []
@@ -194,7 +190,7 @@ class HotelAccommodation(models.Model):
     @api.depends('expected_days', 'check_in','room_status')
     def _compute_expected_date(self):
         """
-               Calculate the expected date based on check_in and expected date
+               Calculate expected checkout date from check-in and expected days
         """
         for record in self:
             if record.room_status == 'check_in' and record.check_in:
@@ -209,7 +205,7 @@ class HotelAccommodation(models.Model):
     @api.constrains('number_of_guests')
     def guest_numbers(self):
         """
-                Check the number of guests equal to the enter guest
+                Ensure number_of_guests matches total guests entered.
         """
         for record in self:
             if record.number_of_guests != len(record.guest_id) + len(record.accommodation_ids):
@@ -217,7 +213,7 @@ class HotelAccommodation(models.Model):
 
     def write(self, vals):
         """
-            Update the record after the validation error in guest number
+            Write values and validate guest numbers
         """
         result = super(HotelAccommodation, self).write(vals)
         self.guest_numbers()
