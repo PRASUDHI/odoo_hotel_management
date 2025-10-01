@@ -19,5 +19,11 @@
                        ref('payment_method_paytrail'),
                    ])]"
         />
+
+    </record>
+    <record id="payment_method_inbound" model="account.payment.method">
+        <field name="name">Paytrail</field>
+        <field name="code">paytrail</field>
+        <field name="payment_type">inbound</field>
     </record>
 </odoo>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="inventory_dashboard.InventoryDashboard" owl="1">
+
+        <div class="o_container" style="overflow-y:auto; max-height:100%; padding:20px; display:flex; flex-wrap:wrap; gap:20px; justify-content:center;">
+            <div style="margin-bottom:20px; text-align:center;">
+                <label>Year:</label>
+                <select name="year" t-on-change="onFilterChange">
+                    <t t-foreach="_.range(2020, 2031)" t-key="year_id" t-as="y">
+                        <option t-att-value="y" t-att-selected="y == state.filters.year"><t t-esc="y"/></option>
+                    </t>
+                </select>
+
+                <label>Month:</label>
+                <select name="month" t-on-change="onFilterChange">
+                    <option value="">All</option>
+                    <t t-foreach="_.range(1, 13)" t-key="month_id" t-as="m">
+                        <option t-att-value="m"><t t-esc="m"/></option>
+                    </t>
+                </select>
+
+                <label>Week:</label>
+                <select name="week" t-on-change="onFilterChange">
+                    <option value="">All</option>
+                    <t t-foreach="_.range(1, 53)" t-key="week_id" t-as="w">
+                        <option t-att-value="w"><t t-esc="w"/></option>
+                    </t>
+                </select>
+            </div>
+
+            <!-- Incoming Stock Card -->
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:650px; ">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Incoming Stock</h3>
+                <div style="position:relative; height:250px;">
+                    <canvas id="incomingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Outgoing Stock Card -->
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:650px; ">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Outgoing Stock</h3>
+                <div style="position:relative; height:250px;">
+                    <canvas id="outgoingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Location Stock Card (Pie Chart) -->
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:700px; ">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Location Stock</h3>
+                <div style="position:relative; height:300px;">
+                    <canvas id="locationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Picking Type Card -->
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:450px; ">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Picking Types</h3>
+                <div style="position:relative; height:300px;">
+                    <canvas id="pickingTypeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Internal Transfers Card -->
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:850px; ">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Internal Transfers</h3>
+                <div style="position:relative; height:300px;">
+                    <canvas id="internalTransferChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Warehouse Card -->
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:450px; ">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Warehouses</h3>
+                <div style="position:relative; height:300px;">
+                    <canvas id="warehouseChart"></canvas>
+                </div>
+            </div>
+
+
+
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:550px; ">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Inventory Valuation</h3>
+                <div style="position:relative; height:350px;">
+                    <canvas id="valuationChart" height="400"></canvas>
+                </div>
+            </div>
+
+
+            <div style="background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px; width:700px;">
+                <h3 style="text-align:center; margin-bottom:10px; color:#34495e;">Average Expense</h3>
+                <div style="position:relative; height:350px;">
+                    <canvas id="averageExpenseChart" height="400"></canvas>
+                </div>
+            </div>
+
+
+
+        </div>
+
+    </t>
+</templates>
