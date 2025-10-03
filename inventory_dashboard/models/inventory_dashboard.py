@@ -1,105 +1,126 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api
-from datetime import datetime, timedelta
+from datetime import date, timedelta, datetime
+from dateutil.relativedelta import relativedelta
+
 
 class InventoryDashboard(models.Model):
     _name = "inventory.dashboard"
     _description = "Inventory Dashboard Data"
 
+    def _get_date_domain(self, period, value=None):
+        """
+        Helper function to generate a date domain.
+        It now handles specific week, month, or year values.
+        """
+        domain = []
+        if not period or period == 'all' or not value:
+            return []
+
+        try:
+            if period == 'week':
+
+                start_date = datetime.strptime(f"{value}-1", "%Y-W%W-%w").date()
+                end_date = start_date + timedelta(days=6)
+                domain = [('date', '>=', start_date), ('date', '<=', end_date)]
+            elif period == 'month':
+                year, month = map(int, value.split('-'))
+                start_date = date(year, month, 1)
+                end_date = (start_date + relativedelta(months=1)) - timedelta(days=1)
+                domain = [('date', '>=', start_date), ('date', '<=', end_date)]
+            elif period == 'year':
+                year = int(value)
+                start_date = date(year, 1, 1)
+                end_date = date(year, 12, 31)
+                domain = [('date', '>=', start_date), ('date', '<=', end_date)]
+        except (ValueError, TypeError):
+            return []
+
+        return domain
+
     @api.model
     def get_dashboard_data(self, filters=None):
-        """Fetch inventory dashboard data with filters (month, week, year)."""
-
-        move_domain = []      # for stock.move
-        pol_domain = []       # for purchase.order.line
-        landed_domain = []    # for stock.landed.cost.lines
-
-        # Build date ranges
-        start_date, end_date = None, None
-        if filters and filters.get('year'):
-            year = int(filters['year'])
-            start_date = datetime(year, 1, 1)
-            end_date = datetime(year, 12, 31, 23, 59, 59)
-
-            if filters.get('month'):
-                month = int(filters['month'])
-                start_date = datetime(year, month, 1)
-                if month == 12:
-                    end_date = datetime(year, 12, 31, 23, 59, 59)
-                else:
-                    end_date = datetime(year, month + 1, 1) - timedelta(seconds=1)
-
-            if filters.get('week'):
-                week = int(filters['week'])
-                start_date = datetime.strptime(f'{year}-W{week}-1', "%Y-W%W-%w")
-                end_date = start_date + timedelta(days=6, hours=23, minutes=59, seconds=59)
-
-            # Apply domains with correct date fields
-            move_domain += [('date', '>=', start_date), ('date', '<=', end_date)]
-            pol_domain += [('order_id.date_order', '>=', start_date), ('order_id.date_order', '<=', end_date)]
-            landed_domain += [('cost_id.date', '>=', start_date), ('cost_id.date', '<=', end_date)]
+        if filters is None:
+            filters = {}
 
         data = {}
+        period = filters.get('period')
+        value = filters.get('value')
+        date_domain = self._get_date_domain(period, value)
 
-        # --- Incoming ---
+        user = self.env.user
+        user_domain = []
+        if not user.has_group('stock.group_stock_manager'):
+            user_domain = [('create_uid', '=', self.env.user.id)]
+
+        incoming_domain = date_domain + [('picking_code', '=', 'incoming')] + user_domain
+        outgoing_domain = date_domain + [('picking_code', '=', 'outgoing')] + user_domain
+        internal_domain = date_domain + [('picking_code', '=', 'internal')] + user_domain
+
         data['incoming'] = self.env['stock.move'].read_group(
-            [('picking_code', '=', 'incoming')] + move_domain,
-            ['product_id', 'product_uom_qty:sum'],
-            ['product_id']
+            incoming_domain, ['product_id', 'product_uom_qty:sum'], ['product_id']
         )
-
-        # --- Outgoing ---
         data['outgoing'] = self.env['stock.move'].read_group(
-            [('picking_code', '=', 'outgoing')] + move_domain,
-            ['product_id', 'product_uom_qty:sum'],
-            ['product_id']
+            outgoing_domain, ['product_id', 'product_uom_qty:sum'], ['product_id']
         )
-
-        # --- Internal ---
         data['internal'] = self.env['stock.move'].read_group(
-            [('picking_code', '=', 'internal')] + move_domain,
-            ['product_id', 'product_uom_qty:sum'],
-            ['product_id']
+            internal_domain, ['product_id', 'product_uom_qty:sum'], ['product_id']
         )
 
-        # --- Inventory valuation (not date-dependent) ---
+        picking_date_domain = [(item[0].replace('date', 'date_done'), item[1], item[2]) for item in date_domain]
+        picking_date_domain += user_domain
+        data['picking_types'] = self.env['stock.picking'].read_group(
+            picking_date_domain, ['picking_type_id'], ['picking_type_id']
+        )
+
+        warehouses = self.env['stock.warehouse'].search([])
+        data['warehouses'] = [{'name': wh.name, 'code': wh.code} for wh in warehouses]
+
         quants = self.env['stock.quant'].read_group([], ['quantity:sum', 'value:sum'], ['location_id'])
         valuation_data = []
         for q in quants:
             if q['location_id']:
-                location = self.env['stock.location'].browse(q['location_id'][0])
+                location_id = q['location_id'][0]
+                location = self.env['stock.location'].browse(location_id)
                 if location.usage == 'internal':
+                    value_number = round(q.get('value', 0), 2)
                     valuation_data.append({
                         'warehouse': location.display_name,
-                        'value': round(q.get('value', 0), 2)
+                        'value': value_number
                     })
         data['inventory_valuation'] = valuation_data
 
-        # --- Average expense per product ---
         products = self.env['product.product'].search([('purchase_ok', '=', True)])
         avg_expense_data = []
 
+        purchase_date_domain = []
+        if date_domain:
+            purchase_date_domain = [('order_id.date_order', item[1], item[2]) for item in date_domain]
+
         for product in products:
-            purchase_lines = self.env['purchase.order.line'].search([('product_id', '=', product.id)] + pol_domain)
-            total_cost, total_qty = 0, 0
+            purchase_lines = self.env['purchase.order.line'].search(
+                [('product_id', '=', product.id)] + purchase_date_domain
+            )
+            total_cost = 0
+            total_qty = 0
 
             for line in purchase_lines:
                 purchase_cost = line.price_unit or 0
                 qty = line.product_qty or 1
 
-                # Landed cost lines for the same product
-                landed_lines = self.env['stock.landed.cost.lines'].search(
-                    [('product_id', '=', product.id)] + landed_domain
-                )
+                landed_lines = self.sudo().env['stock.landed.cost.lines'].search([('product_id', '=', product.id)])
                 landed_cost = sum(lc.price_unit for lc in landed_lines)
 
                 total_cost += (purchase_cost + landed_cost) * qty
                 total_qty += qty
 
-            avg_expense_data.append({
-                'product': product.name,
-                'average_expense': round(total_cost / total_qty, 2) if total_qty else 0
-            })
+            average_expense = total_cost / total_qty if total_qty else 0
+
+            if total_qty > 0:
+                avg_expense_data.append({
+                    'product': product.name,
+                    'average_expense': round(average_expense, 2)
+                })
 
         data['average_expense'] = avg_expense_data
 

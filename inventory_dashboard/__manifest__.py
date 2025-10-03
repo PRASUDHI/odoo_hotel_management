@@ -11,7 +11,6 @@
        'web.assets_backend': [
            'inventory_dashboard/static/src/js/dashboard.js',
            'inventory_dashboard/static/src/xml/dashboard.xml',
-           'inventory_dashboard/static/src/css/inventory_dashboard.css',
        ],
 
     },
