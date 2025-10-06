@@ -28,11 +28,6 @@ class InventoryDashboard(models.Model):
                 start_date = date(year, month, 1)
                 end_date = (start_date + relativedelta(months=1)) - timedelta(days=1)
                 domain = [('date', '>=', start_date), ('date', '<=', end_date)]
-            elif period == 'year':
-                year = int(value)
-                start_date = date(year, 1, 1)
-                end_date = date(year, 12, 31)
-                domain = [('date', '>=', start_date), ('date', '<=', end_date)]
         except (ValueError, TypeError):
             return []
 

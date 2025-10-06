@@ -25,12 +25,7 @@
                         </div>
                     </div>
 
-<!--                    <div class="d-flex flex-column">-->
-<!--                        <label for="year-picker" class="form-label mb-1">Filter by Year</label>-->
-<!--                        <div class="input-group">-->
-<!--                            <input type="number" id="year-picker" class="form-control" placeholder="YYYY" t-att-value="state.selectedYear" t-on-change="onYearChange" style="min-width: 100px;"/>-->
-<!--                        </div>-->
-<!--                    </div>-->
+
 
                     <div class="ms-auto">
                         <button class="btn btn-outline-secondary" t-on-click="clearFilters">Show All Time</button>

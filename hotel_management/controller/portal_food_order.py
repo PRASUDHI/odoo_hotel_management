@@ -123,7 +123,6 @@ class WebsiteFoodOrder(http.Controller):
         if line and line.food_list_id.id == order.id:
             line.unlink()
 
-        # Rebuild cart
         cart_items = [
             {
                 "food_id": l.id,

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="portal_my_timeoff" customize_show="True" name="My Timeoff" inherit_id="portal.portal_my_home" priority="10">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/>
+                <t t-set="title">My TimeOff</t>
+                <t t-set="url" t-value="'/my/timeoff'"/>
+                <t t-set="text">TimeOff</t>
+                <t t-set="placeholder_count" t-value="'timeoff_count'"/>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+        </div>
+    </template>
+</odoo>
